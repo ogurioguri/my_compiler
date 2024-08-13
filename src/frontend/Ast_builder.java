@@ -351,12 +351,12 @@ public class ast_builder extends divideBaseVisitor<ast_node>{
 
     @Override
     public ast_node visitArray_access_expression(divideParser.Array_access_expressionContext ctx) {
-        basic_expression array = (basic_expression) visit(ctx.name);
+        String name = ctx.Identified().getText();
         ArrayList<basic_expression> index = new ArrayList<>();
         for(divideParser.ExpressionContext index_ : ctx.expression()){
             index.add((basic_expression) visit(index_));
         }
-        return new array_expression(new position(ctx),array,index);
+        return new array_expression(new position(ctx),name,index);
     }
 
     @Override

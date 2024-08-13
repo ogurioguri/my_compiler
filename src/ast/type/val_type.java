@@ -1,7 +1,7 @@
 package ast.type;
 
 public class val_type extends basic_type {
-    int dimension;
+    public int dimension = 0;
     public val_type() {
         super();
         dimension = 0;

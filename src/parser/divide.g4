@@ -91,7 +91,7 @@ expression
     | expression op = Or expression #logical_or_expression
     | <assoc = right> op = Not expression #logical_not_expression
     | expression op = Dot Identifier #member_access_expression
-    | name = expression ('[' expression? ']')+  #array_access_expression
+    | name = Identifier ('[' expression? ']')+  #array_access_expression
     | <assoc = right> expression Question expression Colon expression #conditional_expression
     | New (Int | String | Bool | Identifier ) ('('')')?  #new_expression
     | New (Int | String | Bool | Identifier) ('[' expression? ']')+ (arrayLiteral)? #new_array_expression

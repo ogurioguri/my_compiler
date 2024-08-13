@@ -1,8 +1,6 @@
 // Generated from //wsl.localhost/Ubuntu/home/oguricap/my_compiler/compiler/Compiler-Design-Implementation-master/src/parser/divide.g4 by ANTLR 4.13.1
 package parser;
 
-    package parser;
-
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
     import org.antlr.v4.runtime.*;
