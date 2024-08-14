@@ -3,13 +3,13 @@ package ast.type;
 import java.util.ArrayList;
 
 class basic_type {
-    boolean is_int;
-    boolean is_bool;
-    boolean is_string;
-    boolean is_void;
-    boolean is_class;
+    public boolean is_int;
+    public boolean is_bool;
+    public boolean is_string;
+    public boolean is_void;
+    public boolean is_class;
 
-    String class_name;
+    public String class_name;
 
     public basic_type() {
         this.is_int = false;
