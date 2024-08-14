@@ -11,6 +11,9 @@ public class scope {
     public scope parent_scope;
     public HashMap<String , class_struct> class_map;
     public HashMap<String , function_struct> function_map;
+    public boolean is_class = false;
+    public boolean is_function = false;
+    public int loop_depth = 0;
 
     public void init(){
         this.member_map = new HashMap<>();

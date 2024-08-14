@@ -1,4 +1,4 @@
 /testcases
 /turorial
 /.idea
-/src/parser/lib
+src/parser/antlr-4.13.2-complete.jar

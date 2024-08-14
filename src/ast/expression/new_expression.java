@@ -6,10 +6,9 @@ import java.util.ArrayList;
 import ast.primary.*;
 
 public class new_expression extends basic_expression {
-    val_type type;
-    ArrayList<basic_expression> expression_list;
-    boolean has_array_literal;
-    array_literal value;
+    public ArrayList<basic_expression> expression_list;
+    public boolean has_array_literal;
+    public array_literal value;
     public new_expression(position pos ,ArrayList<basic_expression> expression_list_,val_type type_) {
         super(pos);
         expression_list = expression_list_;

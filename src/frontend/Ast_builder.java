@@ -10,7 +10,7 @@ import ast.statement.*;
 import java.util.HashMap;
 import java.util.ArrayList;
 
-public class ast_builder extends divideBaseVisitor<ast_node>{
+public class Ast_builder extends divideBaseVisitor<ast_node>{
     @Override
     public ast_node visitProgram(divideParser.ProgramContext ctx) {
         program_node program = new program_node(new position(ctx));
@@ -291,6 +291,13 @@ public class ast_builder extends divideBaseVisitor<ast_node>{
         ArrayList<basic_expression> expression_list = new ArrayList<>();
         for(divideParser.ExpressionContext expression : ctx.expression()){
             expression_list.add((basic_expression) visit(expression));
+        }
+        if(ctx.arrayLiteral() != null){
+            now_primary = new array_literal(new ArrayList<>());
+            for(divideParser.ExpressionContext content: ctx.primary().constant().arrayLiteral().expression()){
+                ((array_literal) now_primary).value.add((basic_expression)visit(content));
+            }
+            return new new_expression(new position(ctx),expression_list,type,(array_literal)now_primary);
         }
         return new new_expression(new position(ctx),expression_list,type);
     }

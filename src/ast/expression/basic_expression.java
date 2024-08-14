@@ -3,11 +3,12 @@ package ast.expression;
 import ast.ast_node;
 import util.position;
 import ast.ast_visitor;
+import ast.type.val_type;
 
 abstract public class basic_expression extends ast_node {
-    String type;
-    boolean is_lvalue;
-    boolean is_const;
+    public val_type type;
+    public boolean is_lvalue;
+    public boolean is_const;
     public basic_expression(position pos) {
         super(pos);
     }
