@@ -1,16 +1,16 @@
 // Generated from //wsl.localhost/Ubuntu/home/oguricap/Compiler-Design-Implementation-master/src/parser/divide.g4 by ANTLR 4.13.1
 package parser;
 
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.atn.ATN;
-import org.antlr.v4.runtime.atn.ATNDeserializer;
-import org.antlr.v4.runtime.atn.ParserATNSimulator;
-import org.antlr.v4.runtime.atn.PredictionContextCache;
-import org.antlr.v4.runtime.dfa.DFA;
-import org.antlr.v4.runtime.tree.ParseTreeVisitor;
-import org.antlr.v4.runtime.tree.TerminalNode;
+    package parser;
 
+import org.antlr.v4.runtime.atn.*;
+import org.antlr.v4.runtime.dfa.DFA;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.misc.*;
+import org.antlr.v4.runtime.tree.*;
 import java.util.List;
+import java.util.Iterator;
+import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue"})
 public class divideParser extends Parser {
@@ -1695,7 +1695,7 @@ public class divideParser extends Parser {
 				setState(190);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,15,_ctx);
-				while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
+				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 					if ( _alt==1 ) {
 						{
 						{
@@ -1715,7 +1715,7 @@ public class divideParser extends Parser {
 				setState(197);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,16,_ctx);
-				while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
+				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 					if ( _alt==1 ) {
 						{
 						{
@@ -1803,7 +1803,7 @@ public class divideParser extends Parser {
 					consume();
 				}
 				setState(210);
-				expression(5);
+				expression(6);
 				}
 				break;
 			default:
@@ -1813,7 +1813,7 @@ public class divideParser extends Parser {
 			setState(273);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,24,_ctx);
-			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
@@ -1907,23 +1907,11 @@ public class divideParser extends Parser {
 						break;
 					case 5:
 						{
-						_localctx = new Assignment_expressionContext(new ExpressionContext(_parentctx, _parentState));
-						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(225);
-						if (!(precpred(_ctx, 6))) throw new FailedPredicateException(this, "precpred(_ctx, 6)");
-						setState(226);
-						((Assignment_expressionContext)_localctx).op = match(Assign);
-						setState(227);
-						expression(6);
-						}
-						break;
-					case 6:
-						{
 						_localctx = new Relational_expressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(228);
-						if (!(precpred(_ctx, 4))) throw new FailedPredicateException(this, "precpred(_ctx, 4)");
-						setState(229);
+						setState(225);
+						if (!(precpred(_ctx, 5))) throw new FailedPredicateException(this, "precpred(_ctx, 5)");
+						setState(226);
 						((Relational_expressionContext)_localctx).op = _input.LT(1);
 						_la = _input.LA(1);
 						if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 4227858432L) != 0)) ) {
@@ -1934,32 +1922,44 @@ public class divideParser extends Parser {
 							_errHandler.reportMatch(this);
 							consume();
 						}
+						setState(227);
+						expression(6);
+						}
+						break;
+					case 6:
+						{
+						_localctx = new Logical_and_expressionContext(new ExpressionContext(_parentctx, _parentState));
+						pushNewRecursionContext(_localctx, _startState, RULE_expression);
+						setState(228);
+						if (!(precpred(_ctx, 4))) throw new FailedPredicateException(this, "precpred(_ctx, 4)");
+						setState(229);
+						((Logical_and_expressionContext)_localctx).op = match(And);
 						setState(230);
 						expression(5);
 						}
 						break;
 					case 7:
 						{
-						_localctx = new Logical_and_expressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new Logical_or_expressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(231);
 						if (!(precpred(_ctx, 3))) throw new FailedPredicateException(this, "precpred(_ctx, 3)");
 						setState(232);
-						((Logical_and_expressionContext)_localctx).op = match(And);
+						((Logical_or_expressionContext)_localctx).op = match(Or);
 						setState(233);
 						expression(4);
 						}
 						break;
 					case 8:
 						{
-						_localctx = new Logical_or_expressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new Assignment_expressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(234);
 						if (!(precpred(_ctx, 2))) throw new FailedPredicateException(this, "precpred(_ctx, 2)");
 						setState(235);
-						((Logical_or_expressionContext)_localctx).op = match(Or);
+						((Assignment_expressionContext)_localctx).op = match(Assign);
 						setState(236);
-						expression(3);
+						expression(2);
 						}
 						break;
 					case 9:
@@ -2055,7 +2055,7 @@ public class divideParser extends Parser {
 							setState(264); 
 							_errHandler.sync(this);
 							_alt = getInterpreter().adaptivePredict(_input,22,_ctx);
-						} while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER );
+						} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
 						}
 						break;
 					case 12:
@@ -2216,7 +2216,7 @@ public class divideParser extends Parser {
 			setState(287);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,26,_ctx);
-			while ( _alt!=1 && _alt!= ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=1 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1+1 ) {
 					{
 					{
@@ -2435,7 +2435,7 @@ public class divideParser extends Parser {
 		case 3:
 			return precpred(_ctx, 8);
 		case 4:
-			return precpred(_ctx, 6);
+			return precpred(_ctx, 5);
 		case 5:
 			return precpred(_ctx, 4);
 		case 6:
@@ -2601,7 +2601,7 @@ public class divideParser extends Parser {
 		"\u0003\u001e\u000f\u000e\u00cd\u00ce\u0007\u0002\u0000\u0000\u00ce\u00d4"+
 		"\u0003\u001e\u000f\n\u00cf\u00d0\u0005(\u0000\u0000\u00d0\u00d4\u0003"+
 		"\u001e\u000f\u0007\u00d1\u00d2\u0007\u0003\u0000\u0000\u00d2\u00d4\u0003"+
-		"\u001e\u000f\u0005\u00d3\u00b0\u0001\u0000\u0000\u0000\u00d3\u00b2\u0001"+
+		"\u001e\u000f\u0006\u00d3\u00b0\u0001\u0000\u0000\u0000\u00d3\u00b2\u0001"+
 		"\u0000\u0000\u0000\u00d3\u00b6\u0001\u0000\u0000\u0000\u00d3\u00cb\u0001"+
 		"\u0000\u0000\u0000\u00d3\u00cd\u0001\u0000\u0000\u0000\u00d3\u00cf\u0001"+
 		"\u0000\u0000\u0000\u00d3\u00d1\u0001\u0000\u0000\u0000\u00d4\u0111\u0001"+
@@ -2610,14 +2610,14 @@ public class divideParser extends Parser {
 		"\u0000\u00d9\u00da\u0007\u0003\u0000\u0000\u00da\u0110\u0003\u001e\u000f"+
 		"\r\u00db\u00dc\n\t\u0000\u0000\u00dc\u00dd\u0007\u0005\u0000\u0000\u00dd"+
 		"\u0110\u0003\u001e\u000f\n\u00de\u00df\n\b\u0000\u0000\u00df\u00e0\u0007"+
-		"\u0006\u0000\u0000\u00e0\u0110\u0003\u001e\u000f\t\u00e1\u00e2\n\u0006"+
-		"\u0000\u0000\u00e2\u00e3\u0005)\u0000\u0000\u00e3\u0110\u0003\u001e\u000f"+
-		"\u0006\u00e4\u00e5\n\u0004\u0000\u0000\u00e5\u00e6\u0007\u0007\u0000\u0000"+
-		"\u00e6\u0110\u0003\u001e\u000f\u0005\u00e7\u00e8\n\u0003\u0000\u0000\u00e8"+
-		"\u00e9\u0005 \u0000\u0000\u00e9\u0110\u0003\u001e\u000f\u0004\u00ea\u00eb"+
-		"\n\u0002\u0000\u0000\u00eb\u00ec\u0005!\u0000\u0000\u00ec\u0110\u0003"+
-		"\u001e\u000f\u0003\u00ed\u00ee\n\u0001\u0000\u0000\u00ee\u00ef\u00053"+
-		"\u0000\u0000\u00ef\u00f0\u0003\u001e\u000f\u0000\u00f0\u00f1\u00054\u0000"+
+		"\u0006\u0000\u0000\u00e0\u0110\u0003\u001e\u000f\t\u00e1\u00e2\n\u0005"+
+		"\u0000\u0000\u00e2\u00e3\u0007\u0007\u0000\u0000\u00e3\u0110\u0003\u001e"+
+		"\u000f\u0006\u00e4\u00e5\n\u0004\u0000\u0000\u00e5\u00e6\u0005 \u0000"+
+		"\u0000\u00e6\u0110\u0003\u001e\u000f\u0005\u00e7\u00e8\n\u0003\u0000\u0000"+
+		"\u00e8\u00e9\u0005!\u0000\u0000\u00e9\u0110\u0003\u001e\u000f\u0004\u00ea"+
+		"\u00eb\n\u0002\u0000\u0000\u00eb\u00ec\u0005)\u0000\u0000\u00ec\u0110"+
+		"\u0003\u001e\u000f\u0002\u00ed\u00ee\n\u0001\u0000\u0000\u00ee\u00ef\u0005"+
+		"3\u0000\u0000\u00ef\u00f0\u0003\u001e\u000f\u0000\u00f0\u00f1\u00054\u0000"+
 		"\u0000\u00f1\u00f2\u0003\u001e\u000f\u0001\u00f2\u0110\u0001\u0000\u0000"+
 		"\u0000\u00f3\u00f4\n\u0012\u0000\u0000\u00f4\u00fd\u0005-\u0000\u0000"+
 		"\u00f5\u00fa\u0003\u001e\u000f\u0000\u00f6\u00f7\u00055\u0000\u0000\u00f7"+
