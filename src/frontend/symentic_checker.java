@@ -318,7 +318,7 @@ public class symentic_checker implements ast_visitor {
             node.type = node.left.type;;
         }
         else {
-            throw new error(node.pos, "type mismatch in assign expression", "Invalid Type");
+            throw new error(node.pos, "type mismatch in assign expression", "Type Mismatch");
         }
         if (!node.left.is_lvalue) {
             throw new error(node.pos, "lhs should be lvalue", "symentic error");
@@ -428,7 +428,7 @@ public class symentic_checker implements ast_visitor {
                 int dimension_array = max_+1;
                 first.dimension = dimension_array;
                 if(!node.type.equals(first) && flag){
-                    throw new error(node.pos, "array literal type mismatch", "Dimension Out Of Bound");
+                    throw new error(node.pos, "array literal type mismatch", "Type Mismatch");
                 }
                 else{
                     node.is_const = false;
@@ -575,7 +575,7 @@ public class symentic_checker implements ast_visitor {
         if (node.condition != null) {
             node.condition.accept(this);
             if (!node.condition.type.is_bool) {
-                throw new error(node.pos, "condition should be bool", "Invalid Control Flow");
+                throw new error(node.pos, "condition should be bool", "Type Mismatch");
             }
         }
         if (node.update != null) {
@@ -608,7 +608,7 @@ public class symentic_checker implements ast_visitor {
         if (node.return_value != null) {
             node.return_value.accept(this);
             if (!current.getReturn_type().equals(node.return_value.type) && !node.return_value.type.class_name.equals("null")) {
-                throw new error(node.pos, "return type mismatch", "Invalid Type");
+                throw new error(node.pos, "return type mismatch", "Type Mismatch");
             }
         }
         globle.has_return = true;
