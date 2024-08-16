@@ -575,7 +575,7 @@ public class symentic_checker implements ast_visitor {
         if (node.condition != null) {
             node.condition.accept(this);
             if (!node.condition.type.is_bool) {
-                throw new error(node.pos, "condition should be bool", "Type Mismatch");
+                throw new error(node.pos, "condition should be bool", "Invalid Type");
             }
         }
         if (node.update != null) {
