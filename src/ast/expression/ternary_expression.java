@@ -1,7 +1,6 @@
 package ast.expression;
 import util.position;
 import ast.ast_visitor;
-import ast.expression.basic_expression;
 
 
 public class ternary_expression extends basic_expression {

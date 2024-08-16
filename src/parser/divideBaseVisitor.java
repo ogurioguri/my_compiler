@@ -1,6 +1,5 @@
-// Generated from //wsl.localhost/Ubuntu/home/oguricap/my_compiler/compiler/Compiler-Design-Implementation-master/src/parser/divide.g4 by ANTLR 4.13.1
+// Generated from //wsl.localhost/Ubuntu/home/oguricap/Compiler-Design-Implementation-master/src/parser/divide.g4 by ANTLR 4.13.1
 package parser;
-
 
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
@@ -21,6 +20,13 @@ public class divideBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitProgram(divideParser.ProgramContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitProgram_member(divideParser.Program_memberContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -294,13 +300,6 @@ public class divideBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitArray_access_expression(divideParser.Array_access_expressionContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitNew_expression(divideParser.New_expressionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

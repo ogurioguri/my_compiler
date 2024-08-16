@@ -1,7 +1,5 @@
 package util.member_struct;
 import ast.type.*;
-import util.error;
-import util.position;
 import ast.*;
 
 import java.util.HashMap;
@@ -11,6 +9,7 @@ public class class_struct {
     public String name;
     public HashMap<String,val_type> member_list;
     public HashMap<String, function_struct> function_list;
+    public boolean is_used = false;
 
     public class_struct() {
         this.member_list = new HashMap<>();

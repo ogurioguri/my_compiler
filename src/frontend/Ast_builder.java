@@ -6,6 +6,7 @@ import ast.type.*;
 import util.position;
 import ast.expression.*;
 import ast.statement.*;
+import util.error;
 
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -14,16 +15,40 @@ public class Ast_builder extends divideBaseVisitor<ast_node>{
     @Override
     public ast_node visitProgram(divideParser.ProgramContext ctx) {
         program_node program = new program_node(new position(ctx));
-        for (divideParser.DeclarationContext declaration : ctx.declaration()) {
-            program.children.add(visit(declaration));
+        for(divideParser.Program_memberContext member : ctx.program_member()) {
+            program.children.add(visit(member));
         }
-        for(divideParser.FunctionDefinitionContext functionDefinition : ctx.functionDefinition()){
-            program.children.add(visit(functionDefinition));
-        }
-        for(divideParser.ClassDefinitionContext classDefination : ctx.classDefinition()){
-            program.children.add(visit(classDefination));
-        }
+//        for (divideParser.DeclarationContext declaration : ctx.declaration()) {
+//            if(declaration != null){
+//                program.children.add(visit(declaration));
+//            }
+//        }
+//        for(divideParser.FunctionDefinitionContext functionDefinition : ctx.functionDefinition()){
+//            if(functionDefinition != null){
+//                program.children.add(visit(functionDefinition));
+//            }
+//        }
+//        for(divideParser.ClassDefinitionContext classDefination : ctx.classDefinition()){
+//            if(classDefination != null){
+//                program.children.add(visit(classDefination));
+//            }
+//        }
         return program;
+    }
+
+    @Override
+    public ast_node visitProgram_member(divideParser.Program_memberContext ctx){
+        ast_node result = null;
+        if(ctx.classDefinition() != null) {
+            result =  visit(ctx.classDefinition());
+        }
+        if(ctx.functionDefinition()!= null) {
+            result =  visit(ctx.functionDefinition());
+        }
+        if(ctx.declaration() != null) {
+            result =  visit(ctx.declaration());
+        }
+        return result;
     }
 
     @Override
@@ -31,6 +56,9 @@ public class Ast_builder extends divideBaseVisitor<ast_node>{
         val_type type = new val_type(ctx.variableDeclaration().type().basicType().getText(),ctx.variableDeclaration().type().LeftBracket().size());
         HashMap<String,basic_expression> now_map = new HashMap<>();
         for(divideParser.VariableDeclaratorContext variableDeclarator : ctx.variableDeclaration().variableDeclarator()){
+            if(now_map.containsKey(variableDeclarator.Identifier().getText())) {
+                throw new error(new position(ctx),"the declaration of variable is duplicated","symetic error");
+            }
             if(variableDeclarator.expression() == null){
                now_map.put(variableDeclarator.Identifier().getText(),null);
             }
@@ -45,7 +73,13 @@ public class Ast_builder extends divideBaseVisitor<ast_node>{
     public ast_node visitFunctionDefinition(divideParser.FunctionDefinitionContext ctx) {
         val_type type = new val_type(ctx.type().basicType().getText(),ctx.type().LeftBracket().size());
         String name = ctx.Identifier().getText();
-        parameterlist_node parameter_list_ = (parameterlist_node)visit(ctx.parameterList());
+        parameterlist_node parameter_list_;
+        if(ctx.parameterList() != null){
+            parameter_list_ = (parameterlist_node)visit(ctx.parameterList());
+        }
+        else{
+            parameter_list_ = null;
+        }
         block_statement block = (block_statement) visit(ctx.block());
         return new function_def(new position(ctx),type,name,parameter_list_,block);
     }
@@ -76,22 +110,25 @@ public class Ast_builder extends divideBaseVisitor<ast_node>{
                 flag = true;
             }
         }
-        if(flag){
-            return new class_defination_node(new position(ctx),name,class_build,val_declaration_list,func_defination_list);
-        }
-        else{
-           throw new RuntimeException("class_defination_node error");
-        }
+        return new class_defination_node(new position(ctx),name,class_build,val_declaration_list,func_defination_list);
+//        if(flag){
+//            return new class_defination_node(new position(ctx),name,class_build,val_declaration_list,func_defination_list);
+//        }
+//        else{
+//           throw new RuntimeException("class_defination_node error");
+//        }
     }
 
     @Override
     public ast_node visitParameterList(divideParser.ParameterListContext ctx) {
         HashMap<String , val_type> type_name_map_ = new HashMap<>();
+        ArrayList<val_type>type_list_ = new ArrayList<>();
         for(divideParser.ParameterContext parameter : ctx.parameter()){
             val_type type = new val_type(parameter.type().basicType().getText(),parameter.type().LeftBracket().size());
             type_name_map_.put(parameter.Identifier().getText(),type);
+            type_list_.add(type);
         }
-        return new parameterlist_node(new position(ctx),type_name_map_);
+        return new parameterlist_node(new position(ctx),type_name_map_,type_list_);
     }
 
     @Override
@@ -244,8 +281,12 @@ public class Ast_builder extends divideBaseVisitor<ast_node>{
     public ast_node visitFunction_call_expression(divideParser.Function_call_expressionContext ctx) {
         basic_expression function = (basic_expression) visit(ctx.function);
         ArrayList<basic_expression> parameter_list = new ArrayList<>();
+        int i = 0;
         for(divideParser.ExpressionContext parameter : ctx.expression()){
-            parameter_list.add((basic_expression) visit(parameter));
+            if(i>0){
+                parameter_list.add((basic_expression) visit(parameter));
+            }
+            i++;
         }
         return new call_expression(new position(ctx),function,parameter_list);
     }
@@ -255,23 +296,23 @@ public class Ast_builder extends divideBaseVisitor<ast_node>{
         return visit(ctx.expression());
     }
 
-    @Override
-    //error to be changed
-    public ast_node visitNew_expression(divideParser.New_expressionContext ctx) {
-        if(ctx.Int() != null){
-            return new new_expression(new position(ctx),new ArrayList<>(),new val_type("int",0));
-        }
-        else if(ctx.Bool() != null){
-            return new new_expression(new position(ctx),new ArrayList<>(),new val_type("bool",0));
-        }
-        else if(ctx.String() != null){
-            return new new_expression(new position(ctx),new ArrayList<>(),new val_type("string",0));
-        }
-        else if(ctx.Identifier() != null){
-            return new new_expression(new position(ctx),new ArrayList<>(),new val_type(ctx.Identifier().getText(),0));
-        }
-        throw new RuntimeException("new_expression error");
-    }
+//    @Override
+//    //error to be changed
+//    public ast_node visitNew_expression(divideParser.New_expressionContext ctx) {
+//        if(ctx.Int() != null){
+//            return new new_expression(new position(ctx),new ArrayList<>(),new val_type("int",0));
+//        }
+//        else if(ctx.Bool() != null){
+//            return new new_expression(new position(ctx),new ArrayList<>(),new val_type("bool",0));
+//        }
+//        else if(ctx.String() != null){
+//            return new new_expression(new position(ctx),new ArrayList<>(),new val_type("string",0));
+//        }
+//        else if(ctx.Identifier() != null){
+//            return new new_expression(new position(ctx),new ArrayList<>(),new val_type(ctx.Identifier().getText(),0));
+//        }
+//        throw new RuntimeException("new_expression error");
+//    }
 
     @Override
     public ast_node visitNew_array_expression(divideParser.New_array_expressionContext ctx) {
@@ -283,7 +324,7 @@ public class Ast_builder extends divideBaseVisitor<ast_node>{
             type = new val_type("bool",ctx.LeftBracket().size());
         }
         else if(ctx.String() != null){
-            type = new val_type("string",ctx.LeftBracket().size());
+            type = new val_type("String",ctx.LeftBracket().size());
         }
         else if(ctx.Identifier() != null){
             type = new val_type(ctx.Identifier().getText(),ctx.LeftBracket().size());
@@ -293,11 +334,11 @@ public class Ast_builder extends divideBaseVisitor<ast_node>{
             expression_list.add((basic_expression) visit(expression));
         }
         if(ctx.arrayLiteral() != null){
-            now_primary = new array_literal(new ArrayList<>());
-            for(divideParser.ExpressionContext content: ctx.primary().constant().arrayLiteral().expression()){
-                ((array_literal) now_primary).value.add((basic_expression)visit(content));
+            array_literal now_primary = new array_literal(new ArrayList<>());
+            for(divideParser.ExpressionContext content: ctx.arrayLiteral().expression()){
+                (now_primary).value.add((basic_expression)visit(content));
             }
-            return new new_expression(new position(ctx),expression_list,type,(array_literal)now_primary);
+            return new new_expression(new position(ctx),expression_list,type,now_primary);
         }
         return new new_expression(new position(ctx),expression_list,type);
     }
@@ -358,10 +399,17 @@ public class Ast_builder extends divideBaseVisitor<ast_node>{
 
     @Override
     public ast_node visitArray_access_expression(divideParser.Array_access_expressionContext ctx) {
-        String name = ctx.Identified().getText();
+        if(ctx.name instanceof divideParser.New_array_expressionContext){
+            throw new error(new position(ctx), "new expression should be new", "symentic error");
+        }
+        basic_expression name = (basic_expression)visit(ctx.name);
         ArrayList<basic_expression> index = new ArrayList<>();
+        int i = 0;
         for(divideParser.ExpressionContext index_ : ctx.expression()){
-            index.add((basic_expression) visit(index_));
+            if(i > 0){
+                index.add((basic_expression) visit(index_));
+            }
+            i++;
         }
         return new array_expression(new position(ctx),name,index);
     }

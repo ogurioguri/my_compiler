@@ -1,5 +1,6 @@
-// Generated from //wsl.localhost/Ubuntu/home/oguricap/my_compiler/compiler/Compiler-Design-Implementation-master/src/parser/divide.g4 by ANTLR 4.13.1
+// Generated from //wsl.localhost/Ubuntu/home/oguricap/Compiler-Design-Implementation-master/src/parser/divide.g4 by ANTLR 4.13.1
 package parser;
+
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -16,6 +17,12 @@ public interface divideVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitProgram(divideParser.ProgramContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link divideParser#program_member}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitProgram_member(divideParser.Program_memberContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link divideParser#declaration}.
 	 * @param ctx the parse tree
@@ -277,13 +284,6 @@ public interface divideVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitArray_access_expression(divideParser.Array_access_expressionContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code new_expression}
-	 * labeled alternative in {@link divideParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNew_expression(divideParser.New_expressionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code relational_expression}
 	 * labeled alternative in {@link divideParser#expression}.

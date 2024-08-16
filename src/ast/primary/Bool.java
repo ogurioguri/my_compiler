@@ -1,6 +1,5 @@
 package ast.primary;
-import util.position;
-import ast.ast_visitor;
+
 
 public class Bool extends constant {
     public boolean value;

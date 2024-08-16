@@ -1,7 +1,5 @@
 package ast;
 import java.util.ArrayList;
-
-import ast.statement.block_statement;
 import util.position;
 
 public class class_defination_node extends ast_node {

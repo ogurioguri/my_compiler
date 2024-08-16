@@ -15,4 +15,8 @@ public class error extends RuntimeException {
         return error_message + ' ' + message + " at " + pos.toString();
     }
 
+    public String toString() {
+        return get_message();
+    }
+
 }

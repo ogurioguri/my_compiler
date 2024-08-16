@@ -1,8 +1,4 @@
 package ast.primary;
-import ast.ast_node;
-import util.position;
-import ast.ast_visitor;
-
 public class primary {
     public boolean is_this;
     public boolean is_identified;

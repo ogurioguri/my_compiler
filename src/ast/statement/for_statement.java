@@ -1,5 +1,4 @@
 package ast.statement;
-import ast.ast_node;
 import util.position;
 import ast.ast_visitor;
 import ast.expression.*;

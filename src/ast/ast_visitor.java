@@ -1,15 +1,7 @@
 package ast;
-import ast.statement.block_statement;
-import ast.statement.if_statement;
-import ast.statement.while_statement;
 import ast.type.val_type;
-import util.position;
-import java.util.ArrayList;
 import ast.statement.*;
-import ast.type.*;
 import ast.expression.*;
-import ast.statement.*;
-import ast.primary.*;
 
 
 abstract public interface ast_visitor {

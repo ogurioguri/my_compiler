@@ -1,6 +1,4 @@
 package ast.primary;
-import util.position;
-import ast.ast_visitor;
 import java.util.ArrayList;
 import ast.expression.basic_expression;
 

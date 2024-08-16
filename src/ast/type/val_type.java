@@ -20,12 +20,16 @@ public class val_type extends basic_type {
         dimension = len;
         if(name.equals("int")) {
             is_int = true;
+            this.class_name = name;
         } else if(name.equals("bool")) {
             is_bool = true;
-        } else if(name.equals("string")) {
+            this.class_name = name;
+        } else if(name.equals("String") || name.equals("string")) {
             is_string = true;
+            this.class_name = name;
         } else if(name.equals("void")) {
             is_void = true;
+            this.class_name = name;
         } else {
             is_class = true;
             class_name = name;
