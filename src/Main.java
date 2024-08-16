@@ -16,14 +16,14 @@ import java.io.InputStream;
 
 public class Main {
     public static void main(String[] args) throws Exception{
-        String name = "src/test.mx";
-        InputStream input = new FileInputStream(name);
-//        CharStream input = CharStreams.fromStream(System.in);
+//        String name = "src/test.mx";
+//        InputStream input = new FileInputStream(name);
+        CharStream input = CharStreams.fromStream(System.in);
         try {
             ast.program_node ASTRoot;
             scope gScope = new scope(null);
-            divideLexer lexer = new divideLexer(CharStreams.fromStream(input));
-//            divideLexer lexer = new divideLexer(input);
+//            divideLexer lexer = new divideLexer(CharStreams.fromStream(input));
+            divideLexer lexer = new divideLexer(input);
             lexer.removeErrorListeners();
             lexer.addErrorListener(new mx_error());
             divideParser parser = new divideParser(new CommonTokenStream(lexer));
