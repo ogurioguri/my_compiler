@@ -2,4 +2,5 @@
 /turorial
 /.idea
 /lib
-/bin
+bin
+out

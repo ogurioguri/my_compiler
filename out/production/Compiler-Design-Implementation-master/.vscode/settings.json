@@ -1,7 +1,0 @@
-{
-    "java.project.sourcePaths": [
-        ".",
-        "parser/lib"
-    ],
-    "java.project.referencedLibraries": []
-}
