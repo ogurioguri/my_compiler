@@ -90,11 +90,11 @@ expression
     | expression op =(RightShift | LeftShift) expression   #shift_expression
     | expression op = (BitAnd | BitOr | BitXor) expression  #bitwise_and_or_xor_expression
     | <assoc=right> op = BitNot expression   #bitwise_not_expression
-    | <assoc=right> expression op = Assign expression  #assignment_expression
     | <assoc = right> op = (Plus|Minus)expression  #pre_unary_expression
     | expression op = (Equal | NotEqual | Less | LessEqual | Greater | GreaterEqual) expression #relational_expression
     | expression op = And expression #logical_and_expression
     | expression op = Or expression #logical_or_expression
+    | <assoc=right> expression op = Assign expression  #assignment_expression
     | <assoc = right> expression Question expression Colon expression #conditional_expression
 //    | New (Int | String | Bool | Identifier ) ('('')')?  #new_expression
 //    | New (Int | String | Bool | Identifier) ('[' expression? ']')* (arrayLiteral)? #new_array_expression
