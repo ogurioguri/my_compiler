@@ -14,6 +14,6 @@ public class mx_error extends BaseErrorListener {
                             String msg,
                             RecognitionException e) {
 
-        throw new error(new position(line, charPositionInLine),msg,"parser error");
+        throw new error(new position(line, charPositionInLine),msg,"Undefined Identifier");
     }
 }

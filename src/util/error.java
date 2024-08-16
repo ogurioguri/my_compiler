@@ -12,7 +12,7 @@ public class error extends RuntimeException {
     }
 
     public String get_message() {
-        return error_message + ' ' + message + " at " + pos.toString();
+        return error_message;
     }
 
     public String toString() {

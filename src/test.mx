@@ -1,30 +1,14 @@
 /*
-Test Package: Codegen
-Author: Admin
-Time: 2020-02-02
-Input:
-=== input ===
-=== end ===
-Output:
-=== output ===
-=== end ===
-ExitCode: 110
-InstLimit: -1
-Origin Package: Codegen Pretest-579
+Test Package: Sema_Local_Preview
+Test Target: Const Array
+Author: Shihan Fang
+Time: 2024-7-27
+Verdict: Fail
+Origin Package: Semantic Extended
 */
-class C2 {
-    int x;
-    int y;
-    bool b;
-    int z;
-};
 
-int main() {
-    C2 obj = new C2;
-    obj.x = 10;
-    obj.y = 20;
-    obj.b = obj.x > obj.y;
-    if (obj.b) obj.z = 40;
-    else obj.z = 80;
-    return obj.x + obj.y + obj.z;
+int main()
+{
+    int[][] a = {{1,2,3,4},{},{1,2,3,4},{},{1,2,3,4}};
+    a[2][2][2]=1;
 }
