@@ -34,13 +34,13 @@ public class symentic_checker implements ast_visitor {
     public void visit(program_node node) {
         function_struct main = globle.get_function("main");
         if (main == null) {
-            throw new error(node.pos, "main function not found", "symentic error");
+            throw new error(node.pos, "main function not found", "Missing Main");
         }
         if (!main.return_type.equals(new val_type("int", 0))) {
-            throw new error(node.pos, "main function should return int", "symentic error");
+            throw new error(node.pos, "main function should return int", "Invalid type");
         }
         if (!main.parameter_list_array.isEmpty()) {
-            throw new error(node.pos, "main function should not have any parameter", "symentic error");
+            throw new error(node.pos, "main function should not have any parameter", "Invalid Parameter");
         }
         for (var def : node.children) {
             def.accept(this);
@@ -49,7 +49,7 @@ public class symentic_checker implements ast_visitor {
 
     public void visit(class_defination_node node) {
         if (current != globle) {
-            throw new error(node.pos, "class defination should be in global scope", "symentic error");
+            throw new error(node.pos, "class defination should be in global scope", "definition position error");
         }
         scope new_scope = new scope(current);
         new_scope.is_class = true;
@@ -60,7 +60,7 @@ public class symentic_checker implements ast_visitor {
         }
         if (node.class_build != null) {
             if (!node.class_build.name.equals(node.class_name)) {
-                throw new error(node.pos, "class name should be same as class build name", "symentic error");
+                throw new error(node.pos, "class name should be same as class build name", "name dismatch");
             }
             node.class_build.accept(this);
         }
@@ -73,7 +73,7 @@ public class symentic_checker implements ast_visitor {
 
     public void visit(class_construction node) {
         if (!current.is_class) {
-            throw new error(node.pos, "class construction should be in class scope", "symentic error");
+            throw new error(node.pos, "class construction should be in class scope", "class construction position error");
         }
         current = new scope(current);
         current.is_function = true;
@@ -86,10 +86,10 @@ public class symentic_checker implements ast_visitor {
 
     public void visit(function_def node) {
         if (current.exist_variable(node.name)) {
-            throw new error(node.pos, "function " + node.name + " has already been defined", "symentic error");
+            throw new error(node.pos, "function " + node.name + " has already been defined", "Multiple Definitions");
         }
         if (!current.is_class &&current.get_function(node.name) != null && current.get_function(node.name).is_used) {
-            throw new error(node.pos, "function " + node.name + " has already been defined", "symentic error");
+            throw new error(node.pos, "function " + node.name + " has already been defined", "Multiple Definitions");
         }
         if (current.get_class(node.name) != null) {
             throw new error(node.pos, "function " + node.name + " has already been defined", "Multiple Definitions");
@@ -136,18 +136,18 @@ public class symentic_checker implements ast_visitor {
         }
         if (node.type.is_class) {
             if (globle.get_class(node.type.class_name) == null) {
-                throw new error(node.pos, "class " + node.type.class_name + " not found", "symentic error");
+                throw new error(node.pos, "class " + node.type.class_name + " not found", "Undefined Identifier");
             }
         }
         if(node.type.is_void){
-            throw new error(node.pos, "the type can not be defined after void", "symentic error");
+            throw new error(node.pos, "the type can not be defined after void", "Type Mismatch");
         }
         for (var val : node.name_expression_map.keySet()) {
             if (current.exist_variable(val)) {
                 throw new error(node.pos, "variable " + val + " has already been defined", "Multiple Definitions");
             }
             if(!Character.isLetter(val.charAt(0))){
-                throw new error(node.pos, "val is invalid", "symentic error");
+                throw new error(node.pos, "val is invalid", "Invalid Identifier");
             }
             var exp = node.name_expression_map.get(val);
             //int i = 0;
@@ -155,27 +155,27 @@ public class symentic_checker implements ast_visitor {
                 exp.accept(this);
                 //inspect the type of the expression
                 if (exp.type.is_void) {
-                    throw new error(node.pos, "void type expression in variable declaration", "symentic error");
+                    throw new error(node.pos, "void type expression in variable declaration", "Type Mismatch");
                 }
                 if (exp.type.is_int && !node.type.is_int) {
-                    throw new error(node.pos, "type mismatch in variable declaration", "symentic error");
+                    throw new error(node.pos, "type mismatch in variable declaration", "Type Mismatch");
                 }
                 if (exp.type.is_bool && !node.type.is_bool) {
-                    throw new error(node.pos, "type mismatch in variable declaration", "symentic error");
+                    throw new error(node.pos, "type mismatch in variable declaration", "Type Mismatch");
                 }
                 if (exp.type.is_string && !node.type.is_string) {
-                    throw new error(node.pos, "type mismatch in variable declaration", "symentic error");
+                    throw new error(node.pos, "type mismatch in variable declaration", "Type Mismatch");
                 }
                 if (exp.type.is_class && !exp.type.class_name.equals("null") && !node.type.is_class ) {
-                    throw new error(node.pos, "type mismatch in variable declaration", "symentic error");
+                    throw new error(node.pos, "type mismatch in variable declaration", "Type Mismatch");
                 }
                 if (exp.type.is_class && node.type.is_class) {
                     if (!exp.type.class_name.equals(node.type.class_name) && !exp.type.class_name.equals("null")) {
-                        throw new error(node.pos, "type mismatch in variable declaration", "symentic error");
+                        throw new error(node.pos, "type mismatch in variable declaration", "Type Mismatch");
                     }
                 }
                 if (exp.type.dimension != node.type.dimension && !exp.type.class_name.equals("null")) {
-                    throw new error(node.pos, "type mismatch in variable declaration", "symentic error");
+                    throw new error(node.pos, "type mismatch in variable declaration", "Type Mismatch");
                 }
             }
             current.add_variable(val, node.type);
@@ -186,7 +186,7 @@ public class symentic_checker implements ast_visitor {
     public void visit(parameterlist_node node) {
         for (var parameter : node.type_name_map.keySet()) {
             if (current.exist_variable(parameter)) {
-                throw new error(node.pos, "variable " + parameter + " has already been defined", "symentic error");
+                throw new error(node.pos, "variable " + parameter + " has already been defined", "Multiple Definitions");
             }
             current.add_variable(parameter, node.type_name_map.get(parameter));
         }
@@ -197,11 +197,11 @@ public class symentic_checker implements ast_visitor {
         node.rhs.accept(this);
         if(node.op.equals("&&") || node.op.equals("||")){
             if(!node.lhs.type.is_bool || !node.rhs.type.is_bool){
-                throw new error(node.pos, "type mismatch in binary expression", "symentic error");
+                throw new error(node.pos, "type mismatch in binary expression", "Invalid Type");
             }
         }
         if (node.lhs.type.is_void || node.rhs.type.is_void) {
-            throw new error(node.pos, "void type expression in binary expression", "symentic error");
+            throw new error(node.pos, "void type expression in binary expression", "Invalid Type");
         }
         if (node.lhs.type.is_int && node.rhs.type.is_int) {
             if (node.op.equals("+") || node.op.equals("-") || node.op.equals("*") || node.op.equals("/") || node.op.equals("%") || node.op.equals("&") || node.op.equals("|") || node.op.equals("^") || node.op.equals("<<") || node.op.equals(">>")) {
@@ -217,13 +217,13 @@ public class symentic_checker implements ast_visitor {
             }
         } else if (node.lhs.type.is_string && node.rhs.type.is_string) {
             if (node.op.equals("-") || node.op.equals("*") || node.op.equals("/") || node.op.equals("%") || node.op.equals("&") || node.op.equals("|") || node.op.equals("^")) {
-                throw new error(node.pos, "string type mismatch in binary expression", "symentic error");
+                throw new error(node.pos, "string type mismatch in binary expression", "Invalid Type");
             } else {
                 node.type = new val_type("bool", 0);
             }
         }else if(node.lhs.type.is_class && node.rhs.type.is_class){
             if(!node.lhs.type.class_name.equals("null") && !node.rhs.type.class_name.equals("null")){
-                throw new error(node.pos, "class can't match in binary expression", "symentic error");
+                throw new error(node.pos, "class can't match in binary expression", "Invalid Type");
             }
             if(node.op.equals("==") || node.op.equals("!=")){
                 node.type = new val_type("bool", 0);
@@ -234,11 +234,11 @@ public class symentic_checker implements ast_visitor {
                 node.type = new val_type("bool", 0);
             }
             else{
-                throw new error(node.pos, "type mismatch in binary expression", "symentic error");
+                throw new error(node.pos, "type mismatch in binary expression", "Invalid Type");
             }
         }
         else {
-            throw new error(node.pos, "type mismatch in binary expression", "symentic error");
+            throw new error(node.pos, "type mismatch in binary expression", "Invalid Type");
         }
 
         node.is_lvalue = false;
@@ -248,7 +248,7 @@ public class symentic_checker implements ast_visitor {
     public void visit(pre_expression node) {
         node.expression.accept(this);
         if (node.expression.type.is_void) {
-            throw new error(node.pos, "void type expression in unary expression", "symentic error");
+            throw new error(node.pos, "void type expression in unary expression", "Invalid Type");
         }
         if (node.expression.type.is_int) {
             node.type = new val_type("int", 0);
@@ -261,7 +261,7 @@ public class symentic_checker implements ast_visitor {
         }
         if (node.op.equals("++") || node.op.equals("--")) {
             if (!node.expression.is_lvalue) {
-                throw new error(node.pos, "++ or -- should be lvalue", "symentic error");
+                throw new error(node.pos, "++ or -- should be lvalue", "Invalid Type");
             }
             node.is_lvalue = true;
         } else {
@@ -274,14 +274,14 @@ public class symentic_checker implements ast_visitor {
         for (var index : node.index) {
             index.accept(this);
             if (!index.type.is_int) {
-                throw new error(node.pos, "index should be int", "symentic error");
+                throw new error(node.pos, "index should be int", "Type Mismatch");
             }
             if (index.type.dimension > 0) {
-                throw new error(node.pos, "dimension should be 0", "symentic error");
+                throw new error(node.pos, "dimension should be 0", "Type Mismatch");
             }
         }
         if (node.array == null) {
-            throw new error(node.pos, "array is null", "symentic error");
+            throw new error(node.pos, "array is null", "Null Input");
         }
         node.array.accept(this);
 //        if(node.array instanceof  new_expression){
@@ -289,7 +289,7 @@ public class symentic_checker implements ast_visitor {
 //        }
         val_type array_type = node.array.type;
         if (array_type == null) {
-            throw new error(node.pos, "array " + node.array + " not found", "symentic error");
+            throw new error(node.pos, "array " + node.array + " not found", "Undefined Identifier");
         }
         int size = node.index.size();
         if (size > array_type.dimension) {
@@ -304,7 +304,7 @@ public class symentic_checker implements ast_visitor {
         node.left.accept(this);
         node.right.accept(this);
         if (node.left.type.is_void || node.right.type.is_void) {
-            throw new error(node.pos, "void type expression in assign expression", "symentic error");
+            throw new error(node.pos, "void type expression in assign expression", "Invalid Type");
         }
         if (node.left.type.is_int && node.right.type.is_int) {
             node.type = node.left.type;
@@ -321,13 +321,13 @@ public class symentic_checker implements ast_visitor {
             throw new error(node.pos, "type mismatch in assign expression", "Type Mismatch");
         }
         if (!node.left.is_lvalue) {
-            throw new error(node.pos, "lhs should be lvalue", "symentic error");
+            throw new error(node.pos, "lhs should be lvalue", "Invalid Type");
         }
         if (!node.left.type.equals(node.right.type) && !node.right.type.class_name.equals("null")) {
             throw new error(node.pos, "lhs type dimension mismatch", "Type Mismatch");
         }
         if(node.left.type.dimension == 0 && !node.left.type.is_class && node.right.type.class_name.equals("null")) {
-            throw new error(node.pos, "lhs dimension mismatch null", "symentic error");
+            throw new error(node.pos, "lhs dimension mismatch null", "Type Mismatch");
         }
         node.is_lvalue = false;
         node.is_const = false;
@@ -336,7 +336,7 @@ public class symentic_checker implements ast_visitor {
     public void visit(member_expression node) {
         node.object.accept(this);
         if (node.object.type.dimension != 0 && !node.member.equals("size")) {
-            throw new error(node.pos, "array object should not have member", "symentic error");
+            throw new error(node.pos, "array object should not have member", "Type Mismatch");
         }
         if (node.object.type.dimension >0) {
             node.type = new val_type("int",0);
@@ -346,7 +346,7 @@ public class symentic_checker implements ast_visitor {
             return;
         }
         if (!node.object.type.is_class && !node.object.type.is_string) {
-            throw new error(node.pos, "object should be class or string", "symentic error");
+            throw new error(node.pos, "object should be class or string", "Type Mismatch");
         }
 //        if(node.object.type.is_string){
 //            if(globle.get_function(node.member) == null){
@@ -377,10 +377,10 @@ public class symentic_checker implements ast_visitor {
         }
         class_struct class_ = globle.get_class(node.object.type.class_name);
         if (class_ == null) {
-            throw new error(node.pos, "class " + node.object.type.class_name + " not found", "symentic error");
+            throw new error(node.pos, "class " + node.object.type.class_name + " not found", "Undefined Identifier");
         }
         if (class_.member_list.get(node.member) == null && class_.function_list.get(node.member) == null) {
-            throw new error(node.pos, "member " + node.member + " not found", "symentic error");
+            throw new error(node.pos, "member " + node.member + " not found", "Undefined Identifier");
         }
         if (class_.member_list.get(node.member) != null) {
             node.type = class_.member_list.get(node.member);
@@ -395,13 +395,13 @@ public class symentic_checker implements ast_visitor {
     public void visit(new_expression node) {
         if (node.type.is_class) {
             if (globle.get_class(node.type.class_name) == null) {
-                throw new error(node.pos, "class " + node.type.class_name + " not found", "symentic error");
+                throw new error(node.pos, "class " + node.type.class_name + " not found", "Undefined Identifier");
             }
         }
         if (node.expression_list.isEmpty()) {
             if(!node.has_array_literal){
                 if (node.type.dimension != 0) {
-                    throw new error(node.pos, "array should have size", "symentic error");
+                    throw new error(node.pos, "array should have size", "Type Mismatch");
                 }
             }
             else{
@@ -418,7 +418,7 @@ public class symentic_checker implements ast_visitor {
                     now.dimension = 0;
                     if (flag) {
                         if (!now.equals(first)) {
-                            throw new error(node.pos, "array literal type mismatch", "symentic error");
+                            throw new error(node.pos, "array literal type mismatch", "Type Mismatch");
                         }
                     } else {
                         first = now;
@@ -438,12 +438,12 @@ public class symentic_checker implements ast_visitor {
             }
         } else {
             if (node.type.dimension < node.expression_list.size()) {
-                throw new error(node.pos, "array size mismatch", "symentic error");
+                throw new error(node.pos, "array size mismatch", "Dimension Out Of Bound");
             }
             for (var exp : node.expression_list) {
                 exp.accept(this);
                 if (!exp.type.is_int) {
-                    throw new error(node.pos, "size should be int", "symentic error");
+                    throw new error(node.pos, "size should be int", "Type Mismatch");
                 }
             }
         }
@@ -463,7 +463,7 @@ public class symentic_checker implements ast_visitor {
         } else if (node.primary_content instanceof This) {
             node.type = new val_type("this", 0);
             if (!current.is_class) {
-                throw new error(node.pos, "this should be in class scope", "symentic error");
+                throw new error(node.pos, "this should be in class scope", "Definition Position Error");
             }
             node.type = new val_type(current.class_name, 0);
         } else if (node.primary_content instanceof array_literal) {
@@ -480,7 +480,7 @@ public class symentic_checker implements ast_visitor {
                 now.dimension = 0;
                 if (flag) {
                     if (!now.equals(first) ) {
-                        throw new error(node.pos, "array literal type mismatch", "symentic error");
+                        throw new error(node.pos, "array literal type mismatch", "Type Mismatch");
                     }
                 } else {
                     first = now;
@@ -505,7 +505,7 @@ public class symentic_checker implements ast_visitor {
                     throw new error(node.pos, "void type expression in format string", "Invalid Type");
                 }
                 if (exp.type.is_class) {
-                    throw new error(node.pos, "class type expression in format string", "symentic error");
+                    throw new error(node.pos, "class type expression in format string", "Invalid Type");
                 }
             }
             node.is_lvalue = false;
@@ -520,7 +520,7 @@ public class symentic_checker implements ast_visitor {
                 node.is_const = false;
                 node.type = current.get_variable(node.primary_content.identified);
             } else {
-                throw new error(node.pos, "unknown primary expression", "symentic error");
+                throw new error(node.pos, "unknown primary expression", "Invalid Expression");
             }
         }
     }
@@ -530,12 +530,12 @@ public class symentic_checker implements ast_visitor {
         node.true_expression.accept(this);
         node.false_expression.accept(this);
         if (node.condition.type.is_void) {
-            throw new error(node.pos, "void type expression in ternary expression", "symentic error");
+            throw new error(node.pos, "void type expression in ternary expression", "Invalid Type");
         }
         if (node.condition.type.is_bool) {
             node.type = node.true_expression.type;
         } else {
-            throw new error(node.pos, "type mismatch in ternary expression", "symentic error");
+            throw new error(node.pos, "type mismatch in ternary expression", "Type Mismatch");
         }
         node.is_lvalue = false;
         node.is_const = node.condition.is_const && node.true_expression.is_const && node.false_expression.is_const;
@@ -561,7 +561,7 @@ public class symentic_checker implements ast_visitor {
 
     public void visit(continue_statement node) {
         if (current.loop_depth <= 0) {
-            throw new error(node.pos, "continue statement should be in loop", "symentic error");
+            throw new error(node.pos, "continue statement should be in loop", "Invalid Control Flow");
         }
     }
 
@@ -603,7 +603,7 @@ public class symentic_checker implements ast_visitor {
 
     public void visit(return_statement node) {
         if (!current.is_function) {
-            throw new error(node.pos, "return statement should be in function", "symentic error");
+            throw new error(node.pos, "return statement should be in function", "Invalid Control Flow");
         }
         if (node.return_value != null) {
             node.return_value.accept(this);
@@ -617,7 +617,7 @@ public class symentic_checker implements ast_visitor {
     public void visit(while_statement node) {
         node.condition.accept(this);
         if (!node.condition.type.is_bool) {
-            throw new error(node.pos, "condition should be bool", "symentic error");
+            throw new error(node.pos, "condition should be bool", "Invalid Type");
         }
         scope new_scope = new scope(current);
         current = new_scope;
@@ -643,14 +643,14 @@ public class symentic_checker implements ast_visitor {
 
     public void visit(behind_expression node) {
         if (node.expression == null) {
-            throw new error(node.pos, "behind expression should have expression", "symentic error");
+            throw new error(node.pos, "behind expression should have expression", "Missing Expression");
         }
         node.expression.accept(this);
         if (!node.expression.is_lvalue) {
-            throw new error(node.pos, "behind expression should be lvalue", "symentic error");
+            throw new error(node.pos, "behind expression should be lvalue", "Type Mismatch");
         }
         if (!node.expression.type.is_int) {
-            throw new error(node.pos, "behind expression should be int", "symentic error");
+            throw new error(node.pos, "behind expression should be int", "Type Mismatch");
         }
         node.type = new val_type("int", 0);
         node.is_lvalue = false;
@@ -670,12 +670,12 @@ public class symentic_checker implements ast_visitor {
                 }
                 ArrayList<val_type> parameter_list = globle.get_class(((member_expression) (node.function)).object.type.class_name).function_list.get(((member_expression) (node.function)).member).parameter_list_array;
                 if (parameter_list.size() != node.arguments_list.size()) {
-                    throw new error(node.pos, "parameter size mismatch", "symentic error");
+                    throw new error(node.pos, "parameter size mismatch", "Parameter Size Mismatch");
                 }
                 for (int i = 0; i < parameter_list.size(); i++) {
                     node.arguments_list.get(i).accept(this);
                     if (!parameter_list.get(i).equals(node.arguments_list.get(i).type)) {
-                        throw new error(node.pos, "parameter type mismatch", "symentic error");
+                        throw new error(node.pos, "parameter type mismatch", "Parameter Type Mismatch");
                     }
                 }
                 node.is_lvalue = false;
@@ -686,11 +686,11 @@ public class symentic_checker implements ast_visitor {
                 }
                 ArrayList<val_type> parameter_list = globle.get_function(((member_expression) (node.function)).member).parameter_list_array;
                 if (parameter_list.size() != node.arguments_list.size()) {
-                    throw new error(node.pos, "parameter size mismatch", "symentic error");
+                    throw new error(node.pos, "parameter size mismatch", "Parameter Size Mismatch");
                 }
                 for (int i = 0; i < parameter_list.size(); i++) {
                     if (!parameter_list.get(i).equals(node.arguments_list.get(i).type)) {
-                        throw new error(node.pos, "parameter type mismatch", "symentic error");
+                        throw new error(node.pos, "parameter type mismatch", "Parameter Type Mismatch");
                     }
                 }
                 node.is_lvalue = false;
@@ -699,15 +699,15 @@ public class symentic_checker implements ast_visitor {
 //
         } else {
             if (!(node.function instanceof primary_expression) && !(node.function instanceof new_expression)) {
-                throw new error(node.pos, "function should be primary expression", "symentic error");
+                throw new error(node.pos, "function should be primary expression", "Type Mismatch");
             }
             if(node.function instanceof new_expression){
                 node.function.accept(this);
                 if(node.function.type.dimension != 0){
-                    throw new error(node.pos, "call function dimensions mismatch", "symentic error");
+                    throw new error(node.pos, "call function dimensions mismatch", "Type Mismatch");
                 }
                 if(!node.arguments_list.isEmpty()){
-                    throw new error(node.pos, "call function arguments mismatch", "symentic error");
+                    throw new error(node.pos, "call function arguments mismatch", "Type Mismatch");
                 }
                 node.is_lvalue = false;
                 node.is_const = false;
@@ -718,7 +718,7 @@ public class symentic_checker implements ast_visitor {
             if(node.function instanceof primary_expression){
                 if(current.is_class){
                     if(globle.get_class(current.class_name).function_list.get(((primary_expression) (node.function)).primary_content.identified) == null &&globle.get_function(((primary_expression) (node.function)).primary_content.identified) == null){
-                        throw new error(node.pos, "function can't find in class", "symentic error");
+                        throw new error(node.pos, "function can't find in class", "Undefined Identifier");
                     }
                     if(globle.get_class(current.class_name).function_list.get(((primary_expression) (node.function)).primary_content.identified) != null){
                         parameter_list = globle.get_class(current.class_name).function_list.get(((primary_expression) (node.function)).primary_content.identified).parameter_list_array;
@@ -741,12 +741,12 @@ public class symentic_checker implements ast_visitor {
 //                parameter_list = globle.get_function(((primary_expression) (node.function)).primary_content.identified).parameter_list_array;
 //            }
             if (parameter_list.size() != node.arguments_list.size()) {
-                throw new error(node.pos, "parameter size mismatch", "symentic error");
+                throw new error(node.pos, "parameter size mismatch", "Parameter Size Mismatch");
             }
             for (int i = 0; i < parameter_list.size(); i++) {
                 node.arguments_list.get(i).accept(this);
                 if (!parameter_list.get(i).equals(node.arguments_list.get(i).type) && !node.arguments_list.get(i).type.class_name.equals("null")) {
-                    throw new error(node.pos, "parameter type mismatch", "symentic error");
+                    throw new error(node.pos, "parameter type mismatch", "Parameter Type Mismatch");
                 }
             }
             node.is_lvalue = false;
