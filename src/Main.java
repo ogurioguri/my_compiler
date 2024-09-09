@@ -3,6 +3,7 @@ import IR.IRBuilder;
 import IR.ir_program;
 import frontend.Ast_builder;
 import ast.*;
+import org.antlr.v4.runtime.*;
 import parser.*;
 import util.*;
 import frontend.*;
@@ -24,16 +25,16 @@ import java.io.PrintStream;
 
 public class Main {
     public static void main(String[] args) throws Exception{
-        String name = "src/test.mx";
-        InputStream input = new FileInputStream(name);
-        PrintStream out = new PrintStream(new FileOutputStream("src/output.s"));
-        System.setOut(out);
-//        CharStream input = CharStreams.fromStream(System.in);
+//        String name = "src/test.mx";
+//        InputStream input = new FileInputStream(name);
+//        PrintStream out = new PrintStream(new FileOutputStream("src/output.s"));
+//        System.setOut(out);
+        CharStream input = CharStreams.fromStream(System.in);
         try {
             ast.program_node ASTRoot;
             scope gScope = new scope(null);
-            divideLexer lexer = new divideLexer(CharStreams.fromStream(input));
-//            divideLexer lexer = new divideLexer(input);
+//            divideLexer lexer = new divideLexer(CharStreams.fromStream(input));
+            divideLexer lexer = new divideLexer(input);
             lexer.removeErrorListeners();
             lexer.addErrorListener(new mx_error());
             divideParser parser = new divideParser(new CommonTokenStream(lexer));
@@ -53,11 +54,6 @@ public class Main {
             asm_program asmProgram = new asm_program();
             new asm_builder(asmProgram).visit(f);
             System.out.write(asmProgram.toString().getBytes());
-
-
-
-
-
            /* AsmFn asmF = new AsmFn();
             new InstSelector(asmF).visitFn(f);
             new RegAlloc(asmF).work();
