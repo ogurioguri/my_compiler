@@ -2,13 +2,13 @@ package IR.instruction;
 
 import IR.IR_visitor;
 import IR.basic_block;
-import IR.entity.ir_variable;
+import IR.entity.*;
 
 public class ir_load_instruction extends ir_instruction{
-    public ir_variable result;
-    public ir_variable pointer;
+    public ir_entity result;
+    public ir_entity pointer;
 
-    public ir_load_instruction(basic_block parent_block, ir_variable result, ir_variable pointer) {
+    public ir_load_instruction(basic_block parent_block, ir_entity result, ir_entity pointer) {
         super(parent_block);
         this.result = result;
         this.pointer = pointer;
@@ -16,7 +16,7 @@ public class ir_load_instruction extends ir_instruction{
 
     @Override
     public String toString() {
-        return result.toString() + " = load " + pointer.type.toString() + ", " + pointer.toString();
+        return result.toString() + " = load " + result.type.toString() + ", ptr " + pointer.toString();
     }
 
     @Override

@@ -45,16 +45,16 @@ public class ir_binary_instruction extends ir_instruction {
         else if(this.op.equals(">>")){
             return_op = "ashr";
         }
-        else if(this.op.equals("&&")){
+        else if(this.op.equals("&")){
             return_op = "and";
         }
-        else if(this.op.equals("||")){
+        else if(this.op.equals("|")){
             return_op = "or";
         }
         else if(this.op.equals("^")){
             return_op = "xor";
         }
-        return "%" + result.toString() + " = " + return_op + " " + lhs.return_type().toString() + " " + lhs.toString() + ", " + rhs.toString();
+        return  result.toString() + " = " + return_op + " " + lhs.return_type().toString() + " " + lhs.toString() + ", " + rhs.toString();
     }
 
     @Override

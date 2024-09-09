@@ -1,12 +1,12 @@
 package ast.primary;
 
 abstract public class constant extends primary {
-    boolean is_int;
-    boolean is_string;
-    boolean is_bool;
-    boolean is_null;
-    boolean is_format_string;
-    boolean is_array_literal;
+    public boolean is_int;
+    public boolean is_string;
+    public boolean is_bool;
+    public boolean is_null;
+    public boolean is_format_string;
+    public boolean is_array_literal;
     public constant() {
         super();
         this.is_constant = true;

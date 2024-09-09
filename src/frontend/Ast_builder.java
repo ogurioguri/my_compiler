@@ -123,12 +123,14 @@ public class Ast_builder extends divideBaseVisitor<ast_node>{
     public ast_node visitParameterList(divideParser.ParameterListContext ctx) {
         HashMap<String , val_type> type_name_map_ = new HashMap<>();
         ArrayList<val_type>type_list_ = new ArrayList<>();
+        ArrayList<String> name_list_ = new ArrayList<>();
         for(divideParser.ParameterContext parameter : ctx.parameter()){
             val_type type = new val_type(parameter.type().basicType().getText(),parameter.type().LeftBracket().size());
             type_name_map_.put(parameter.Identifier().getText(),type);
+            name_list_.add(parameter.Identifier().getText());
             type_list_.add(type);
         }
-        return new parameterlist_node(new position(ctx),type_name_map_,type_list_);
+        return new parameterlist_node(new position(ctx),type_name_map_,type_list_,name_list_);
     }
 
     @Override
@@ -211,12 +213,12 @@ public class Ast_builder extends divideBaseVisitor<ast_node>{
 
     @Override
     public ast_node visitAdditive_expression(divideParser.Additive_expressionContext ctx) {
-        return new pre_expression(new position(ctx),(basic_expression)visit(ctx.expression(0)),ctx.op.getText());
+        return new binary_expression(new position(ctx),(basic_expression)visit(ctx.expression(0)),(basic_expression)visit(ctx.expression(1)),ctx.op.getText());
     }
 
     @Override
     public ast_node visitMultiplicative_expression(divideParser.Multiplicative_expressionContext ctx) {
-        return new pre_expression(new position(ctx),(basic_expression)visit(ctx.expression(0)),ctx.op.getText());
+        return new binary_expression(new position(ctx),(basic_expression)visit(ctx.expression(0)),(basic_expression)visit(ctx.expression(1)),ctx.op.getText());
     }
 
     @Override

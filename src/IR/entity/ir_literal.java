@@ -10,10 +10,12 @@ public class ir_literal extends ir_entity {
         this.value = value;
         this.type = type;
     }
+
     @Override
     public String toString() {
         return value;
     }
+
     @Override
     public ir_type return_type() {
         return type;

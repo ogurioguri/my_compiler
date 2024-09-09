@@ -30,9 +30,9 @@ public class ir_getelementptr_instruction extends ir_instruction{
     @Override
     public String toString() {
         StringBuilder string = new StringBuilder();
-        string.append(result.toString()).append(" = getelementptr ").append(type.toString()).append(" ").append(ptrval.toString());
+        string.append(result.toString()).append(" = getelementptr ").append(type).append(", ptr ").append(ptrval.toString());
         for (ir_entity i : index) {
-            string.append(", ").append(i.type.toString()).append(" ").append(i.toString());
+            string.append(", ").append(i.return_type().toString()).append(" ").append(i.toString());
         }
         return string.toString();
     }

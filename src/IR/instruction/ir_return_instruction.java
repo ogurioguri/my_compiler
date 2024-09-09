@@ -13,6 +13,7 @@ public class ir_return_instruction extends ir_instruction {
 
     @Override
     public String toString() {
+        if(value == null) return "ret void";
         return "ret " + value.return_type().toString() + " " + value.toString();
     }
 

@@ -19,7 +19,7 @@ public class ir_store_instruction extends ir_instruction {
 
     @Override
     public String toString() {
-        return "store " + value.return_type().toString()+' '+ pointer.toString() + ", ptr " + pointer.toString();
+        return "store " + value.return_type().toString()+' '+ value.toString() + ", ptr " + pointer.toString();
     }
 
     @Override

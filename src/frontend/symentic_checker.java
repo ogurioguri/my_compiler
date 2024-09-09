@@ -218,7 +218,11 @@ public class symentic_checker implements ast_visitor {
         } else if (node.lhs.type.is_string && node.rhs.type.is_string) {
             if (node.op.equals("-") || node.op.equals("*") || node.op.equals("/") || node.op.equals("%") || node.op.equals("&") || node.op.equals("|") || node.op.equals("^")) {
                 throw new error(node.pos, "string type mismatch in binary expression", "Invalid Type");
-            } else {
+            }
+            else if(node.op.equals("+")){
+                node.type = new val_type("String", 0);
+            }
+            else {
                 node.type = new val_type("bool", 0);
             }
         }else if(node.lhs.type.is_class && node.rhs.type.is_class){
@@ -458,6 +462,9 @@ public class symentic_checker implements ast_visitor {
             node.type = new val_type("bool", 0);
         } else if (node.primary_content instanceof string_literal) {
             node.type = new val_type("String", 0);
+            if(globle.get_function(node.primary_content.identified) != null){
+                node.type.is_function = true;
+            }
         } else if (node.primary_content instanceof Null) {
             node.type = new val_type("null", 0);
         } else if (node.primary_content instanceof This) {
@@ -513,12 +520,26 @@ public class symentic_checker implements ast_visitor {
 
         } else {
             if (node.primary_content.is_identified) {
-                if (current.get_variable(node.primary_content.identified) == null) {
-                    throw new error(node.pos, "val has not been defined", "Undefined Identifier");
+                if(current.class_name != null){
+                    var class_ = globle.get_class(current.class_name);
+                    if(current.get_variable(node.primary_content.identified) == null && globle.get_function(node.primary_content.identified) == null && class_.member_list.get(node.primary_content.identified) == null && class_.function_list.get(node.primary_content.identified) == null){
+                        throw new error(node.pos, "val has not been defined", "Undefined Identifier");
+                    }
+                }
+                else{
+                    if (current.get_variable(node.primary_content.identified) == null && globle.get_function(node.primary_content.identified) == null) {
+                        throw new error(node.pos, "val has not been defined", "Undefined Identifier");
+                    }
                 }
                 node.is_lvalue = true;
                 node.is_const = false;
                 node.type = current.get_variable(node.primary_content.identified);
+                if(current.get_variable(node.primary_content.identified) == null){
+                    node.type = new val_type("null", 0);
+                    node.type.is_class = false;
+                    node.type.class_name = node.primary_content.identified;
+                    node.type.is_function = true;
+                }
             } else {
                 throw new error(node.pos, "unknown primary expression", "Invalid Expression");
             }
@@ -698,6 +719,7 @@ public class symentic_checker implements ast_visitor {
             }
 //
         } else {
+            node.function.accept(this);
             if (!(node.function instanceof primary_expression) && !(node.function instanceof new_expression)) {
                 throw new error(node.pos, "function should be primary expression", "Type Mismatch");
             }

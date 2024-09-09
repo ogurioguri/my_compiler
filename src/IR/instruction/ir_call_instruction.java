@@ -23,7 +23,10 @@ public class ir_call_instruction extends ir_instruction{
     @Override
     public String toString() {
         StringBuilder string = new StringBuilder();
-        string.append(result.toString()).append(" = call ").append(result.type.toString()).append(" @").append(function_name).append("(");
+        if(result == null)
+            string.append("call void @").append(function_name).append("(");
+        else
+            string.append(result.toString()).append(" = call ").append(result.type.toString()).append(" @").append(function_name).append("(");
         for (int i = 0; i < parameters.size(); i++) {
             if (i != 0) {
                 string.append(", ");

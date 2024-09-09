@@ -4,7 +4,7 @@ import IR.basic_block;
 
 
 abstract public class ir_instruction {
-    basic_block parent_block;
+    public basic_block parent_block;
     public ir_instruction(basic_block parent_block) {
         this.parent_block = parent_block;
     }

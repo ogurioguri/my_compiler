@@ -2,12 +2,13 @@ package ast.type;
 
 import java.util.ArrayList;
 
-class basic_type {
+public class basic_type {
     public boolean is_int;
     public boolean is_bool;
     public boolean is_string;
     public boolean is_void;
     public boolean is_class;
+    public boolean is_function;
 
     public String class_name;
 
@@ -17,6 +18,7 @@ class basic_type {
         this.is_string = false;
         this.is_void = false;
         this.is_class = false;
+        this.is_function = false;
     }
 
     public basic_type(basic_type other) {
@@ -26,6 +28,7 @@ class basic_type {
         this.is_void = other.is_void;
         this.is_class = other.is_class;
         this.class_name = other.class_name;
+        this.is_function = other.is_function;
     }
 
 //    public basic_type(String class_name) {

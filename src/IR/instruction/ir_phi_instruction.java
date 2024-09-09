@@ -29,7 +29,7 @@ public class ir_phi_instruction extends ir_instruction{
             if (i != 0) {
                 string.append(", ");
             }
-            string.append("[ ").append(values_blocks.get(i).getKey().toString()).append(", ").append(values_blocks.get(i).getValue().toString()).append(" ]");
+            string.append("[ ").append(values_blocks.get(i).getKey().toString()).append(", %").append(values_blocks.get(i).getValue().label).append(" ]");
         }
         return string.toString();
     }
