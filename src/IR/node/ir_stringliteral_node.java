@@ -35,6 +35,5 @@ public class ir_stringliteral_node extends basic_node {
     @Override
     public void accept(IR_visitor visitor) {
         visitor.visit(this);
-
     }
 }

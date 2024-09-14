@@ -24,7 +24,7 @@ public class asm_set_instruction extends asm_instruction{
             return_string = String.format("%-8s", "seqz") + rd + ", " + rs1;
         }
         else if(op.equals("!=")){
-            return_string = String.format("%-8s", "senz") + rd + ", " + rs1;
+            return_string = String.format("%-8s", "snez") + rd + ", " + rs1;
         }
         else if(op.equals("<")){
             return_string = String.format("%-8s", "sltz") + rd + ", " + rs1;

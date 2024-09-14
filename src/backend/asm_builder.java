@@ -196,8 +196,8 @@ public class asm_builder implements IR_visitor{
     @Override
     public void visit(ir_br_instruction ins){
         var condition = get_register(ins.condition,t0);
-        load_register(condition,t0);
         current_block.add_instruction(new asm_comment(current_block,ins.toString()));
+        load_register(condition,t0);
 //        current_block.add_instruction(new asm_br_instruction(current_block,get_register(ins.condition),null,ins.parent_block.parent.name+ "_" + ins.else_block.label,"=="));
         current_block.add_instruction(new asm_br_instruction(current_block,t0,null,ins.parent_block.parent.name+ "_" + ins.else_block.label,"=="));
 
@@ -357,10 +357,10 @@ public class asm_builder implements IR_visitor{
 //        current_block.add_instruction(new asm_arith_instruction(current_block,tmp1,ptr_tmp,get_register(new ir_literal("4",new ir_type("i32"))),"*"));
 //        current_block.add_instruction(new asm_arith_instruction(current_block,tmp2,index,tmp1,"+"));
 //        current_block.add_instruction(new asm_mv_instrcution(current_block,get_register(ins.result),tmp2));
-        load_register(ptr_tmp,t0);
+        load_register(index,t0);
         var tmp3 = get_register(new ir_literal("4",new ir_type("i32")),t1);
         current_block.add_instruction(new asm_arith_instruction(current_block,t2,t0,t1,"*"));
-        load_register(index,t0);
+        load_register(ptr_tmp,t0);
         current_block.add_instruction(new asm_arith_instruction(current_block,t3,t0,t2,"+"));
         var result = get_register(ins.result,t0);
         current_block.add_instruction(new asm_mv_instrcution(current_block,t0,t3));
