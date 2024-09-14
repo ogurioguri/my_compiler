@@ -83,10 +83,10 @@ expression
     | name  = expression ('[' expression? ']')+  #array_access_expression
     | expression op = Dot Identifier #member_access_expression
     | <assoc = right> op = Not expression #logical_not_expression
-    | expression op = (Star | Div | Mod) expression  #multiplicative_expression
-    | expression op = (Plus | Minus) expression  #additive_expression
     | expression op = (PlusPlus | MinusMinus)   #behind_postfix_expression
     | < assoc=right > op = (PlusPlus | MinusMinus) expression  #pre_postfix_expression
+    | expression op = (Star | Div | Mod) expression  #multiplicative_expression
+    | expression op = (Plus | Minus) expression  #additive_expression
     | expression op =(RightShift | LeftShift) expression   #shift_expression
     | expression op = (BitAnd | BitOr | BitXor) expression  #bitwise_and_or_xor_expression
     | <assoc=right> op = BitNot expression   #bitwise_not_expression

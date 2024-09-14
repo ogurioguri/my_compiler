@@ -1,7 +1,6 @@
 // Generated from //wsl.localhost/Ubuntu/home/oguricap/Compiler-Design-Implementation-master/src/parser/divide.g4 by ANTLR 4.13.1
 package parser;
 
-
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**

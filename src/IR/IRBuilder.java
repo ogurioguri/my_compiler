@@ -119,6 +119,9 @@ public class IRBuilder implements ast_visitor {
         // the __init function is wait to be added
         if(ir_program.function_definition_nodeHashMap.get("__init") != null){
            var function = ir_program.function_definition_nodeHashMap.get("__init");
+           for(var block : function.body){
+               block.parent = function;
+           }
            current_block = function.body.get(function.body.size() - 1);
            current_block.add_instruction(new ir_return_instruction(current_block, null));
            current_block = ir_program.function_definition_nodeHashMap.get("main").body.get(0);
@@ -239,6 +242,9 @@ public class IRBuilder implements ast_visitor {
             else{
                 current_block.add_instruction(new ir_return_instruction(current_block, null));
             }
+        }
+        for(var block : new_function.body){
+            block.parent = new_function;
         }
 
         current = current.parent;
@@ -694,11 +700,72 @@ public class IRBuilder implements ast_visitor {
                 current_entity = new ir_literal("null", new ir_type("ptr"));
                 now_function = null;
             } else if (((constant) (node.primary_content)).is_array_literal) {
-                //To Do
+                current_entity = new ir_literal("null", new ir_type("ptr"));
             } else if (((constant) (node.primary_content)).is_format_string) {
-                //To Do
+                ir_entity to_add = null;
+                if(!((format_string)node.primary_content).first.equals("")){
+                    ir_global_variable first_global = new ir_global_variable("_string." + get_new_index("_string"));
+                    String first_ = build_string(((format_string)node.primary_content).first);
+                    ir_program.string_literal_list.add(new ir_stringliteral_node(first_global, first_, ((format_string)node.primary_content).first));
+                    var first_val = new ir_variable("_tmp." + get_new_index("_tmp"), new ir_type("ptr"));
+                    current_block.add_instruction(new ir_load_instruction(current_block,first_val, first_global));
+                    current_entity = first_val;
+                    to_add = first_val;
+                }
+                for(int i = 0 ; i<((format_string)node.primary_content).part2.size();++i){
+                    ((format_string)node.primary_content).part2.get(i).accept(this);
+                    var new_tmp = new ir_variable("_tmp." + get_new_index("_tmp"), new ir_type("ptr"));
+                    current_block.add_instruction(new ir_call_instruction(current_block, new_tmp, "toString", new ArrayList<>(List.of(current_entity))));
+                    var add_tmp_1 = new ir_variable("_tmp." + get_new_index("_tmp"), new ir_type("ptr"));
+                    if(to_add != null){
+                        current_block.add_instruction(new ir_call_instruction(current_block, add_tmp_1, "_string.concat", new ArrayList<>(List.of(to_add,new_tmp))));
+                        to_add = add_tmp_1;
+                        current_entity = add_tmp_1;
+                    }
+                    else{
+                        current_entity = new_tmp;
+                        to_add = new_tmp;
+                    }
+                    if(i < ((format_string)node.primary_content).part1.size()){
+                        ir_global_variable global = new ir_global_variable("_string." + get_new_index("_string"));
+                        String string = build_string(((format_string)node.primary_content).part1.get(i));
+                        ir_program.string_literal_list.add(new ir_stringliteral_node(global, string, ((format_string)node.primary_content).part1.get(i)));
+                        var add_tmp_2 = new ir_variable("_tmp." + get_new_index("_tmp"), new ir_type("ptr"));
+                        current_block.add_instruction(new ir_call_instruction(current_block, add_tmp_2, "_string.concat", new ArrayList<>(List.of(current_entity,global))));
+                        current_entity = add_tmp_2;
+                        to_add = add_tmp_2;
+                    }
+                }
+                if(!((format_string)node.primary_content).third.equals("")){
+                    ir_global_variable third_global = new ir_global_variable("_string." + get_new_index("_string"));
+                    String third_ = build_string(((format_string)node.primary_content).third);
+                    ir_program.string_literal_list.add(new ir_stringliteral_node(third_global, third_, ((format_string)node.primary_content).first));
+                    var add_tmp_3 = new ir_variable("_tmp." + get_new_index("_tmp"), new ir_type("ptr"));
+                    current_block.add_instruction(new ir_call_instruction(current_block, add_tmp_3, "_string.concat", new ArrayList<>(List.of(to_add,third_global))));
+                    current_entity = add_tmp_3;
+                }
             }
         }
+    }
+    private String build_string(String init){
+        StringBuilder string = new StringBuilder();
+        for (int i = 0; i < init.length(); i++) {
+            char c = init.charAt(i);
+            if (c == '\\') {
+                i++;
+                c = init.charAt(i);
+                if (c == 'n') {
+                    string.append("\n");
+                } else if (c == '\\') {
+                    string.append("\\");
+                } else if (c == '\"') {
+                    string.append("\"");
+                }
+            } else {
+                string.append(c);
+            }
+        }
+        return string.toString();
     }
 
     @Override
@@ -939,15 +1006,18 @@ public class IRBuilder implements ast_visitor {
         }
     }
 
-    public ir_variable new_array(val_type type, ArrayList<ir_entity> size , int layer) {
-        if(layer == size.size()){
+    public ir_variable new_array(val_type type, ArrayList<ir_entity> size , int layer,array_literal literal) {
+        if(layer == size.size() && literal == null){
             return new ir_variable("_tmp." + get_new_index("_tmp"), new ir_type(type));
+        }
+        if(literal != null){
+            size.add(new ir_literal(String.valueOf(literal.value.size()), new ir_type("i32")));
         }
         if(layer == size.size() - 1){
             var size_entity = size.get(layer);
             ir_variable _tmp = new ir_variable("_tmp." + get_new_index("_tmp"), new ir_type("ptr"));
             String now_type = null;
-            if(type == null){
+            if(type.class_name.equals("null")){
                 now_type = "ptr";
             }
             else{
@@ -968,6 +1038,45 @@ public class IRBuilder implements ast_visitor {
             parameters.add(new ir_literal(String.valueOf(get_size(now_type)), new ir_type("i32")));
             parameters.add(size_entity);
             current_block.add_instruction(new ir_call_instruction(current_block, _tmp, "_malloc_array" , parameters));
+            if(literal != null){
+                for(int i = 0; i < literal.value.size(); i++){
+                    ir_variable new_entity = new ir_variable("_tmp." + get_new_index("_tmp"), new ir_type(type));
+                    current_block.add_instruction(new ir_getelementptr_instruction(current_block, new_entity, "ptr", _tmp, new ArrayList<>(List.of(new ir_literal(String.valueOf(i), new ir_type("i32"))))));
+                    literal.value.get(i).accept(this);
+                    if(type.is_int){
+                        current_block.add_instruction(new ir_store_instruction(current_block, new ir_literal(String.valueOf((ir_literal)current_entity), new ir_type("i32")), new_entity));
+                    }
+                    else if(type.is_bool){
+                        current_block.add_instruction(new ir_store_instruction(current_block, new ir_literal(((ir_literal)current_entity).value.equals("1")?"1":"0", new ir_type("i1")), new_entity));
+                    }
+                    else if(type.is_string){
+                        var new_string = new ir_global_variable("_string." + get_new_index("_string"));
+                        ir_program.string_literal_list.add(new ir_stringliteral_node(new_string, ((ir_literal)current_entity).value, ((ir_literal)current_entity).value));
+                        StringBuilder string = new StringBuilder();
+                        for (int j = 0; j < ((ir_literal)current_entity).value.length(); j++) {
+                            char c = ((ir_literal)current_entity).value.charAt(j);
+                            if (c == '\\') {
+                                j++;
+                                c =  ((ir_literal)current_entity).value.charAt(j);
+                                if (c == 'n') {
+                                    string.append("\n");
+                                } else if (c == '\\') {
+                                    string.append("\\");
+                                } else if (c == '\"') {
+                                    string.append("\"");
+                                }
+                            } else {
+                                string.append(c);
+                            }
+                        }
+                        ir_program.string_literal_list.add(new ir_stringliteral_node(new_string, string.toString(),  ((ir_literal)current_entity).value));
+                        current_block.add_instruction(new ir_store_instruction(current_block, new_string, new_entity));
+                    }
+                    else if(type.is_class){
+                        current_block.add_instruction(new ir_store_instruction(current_block, new ir_literal("null", new ir_type("ptr")), new_entity));
+                    }
+                }
+            }
             return _tmp;
         }
         var size_entity = size.get(layer);
@@ -1000,7 +1109,7 @@ public class IRBuilder implements ast_visitor {
             index_list.add(i);
             var new_ptr = new ir_variable("_tmp." + get_new_index("_tmp"), new ir_type("ptr"));
             current_block.add_instruction(new ir_getelementptr_instruction(current_block, new_ptr, "ptr", ret, index_list));
-            var new_array = new_array(type, size, layer + 1);
+            var new_array = new_array(type, size, layer + 1,literal);
             current_block.add_instruction(new ir_store_instruction(current_block, new_array, new_ptr));
         }
         current_block.add_instruction(new ir_uncond_br(current_block, step_block));
@@ -1036,20 +1145,21 @@ public class IRBuilder implements ast_visitor {
             expression.accept(this);
             size.add(current_entity);
         }
-        if(node.type.dimension == size.size()){
-            current_entity = new_array(node.type, size, 0);
+        if(node.has_array_literal){
+            current_entity = new_array(node.type, size, 0, node.value);
         }
         else{
-            current_entity = new_array(null, size, 0);
+            if(node.type.dimension == size.size()){
+                current_entity = new_array(node.type, size, 0,null);
+            }
+            else{
+                current_entity = new_array(new val_type("null",0), size, 0,null);
+            }
         }
-
     }
 
     @Override
     public void visit(assign_expression node) {
-        if(node.pos.row() == 84){
-            int c = 0;
-        }
         node.left.accept(this);
         ir_entity lhs = current_ptr;
         node.right.accept(this);

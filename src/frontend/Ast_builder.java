@@ -259,7 +259,7 @@ public class Ast_builder extends divideBaseVisitor<ast_node>{
         else if(ctx.primary().constant().formatString() != null){
             String first = ctx.primary().constant().formatString().FormatStringleft().getText();
             //remove f and "
-            first = first.substring(2);
+            first = first.substring(2,first.length()-1);
             String third = ctx.primary().constant().formatString().FormatStringright().getText();
             //remove "
             third = third.substring(1,third.length()-1);

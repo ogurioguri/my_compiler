@@ -10,7 +10,7 @@ public class asm_val_define extends asm_section {
 
     @Override
     public String toString() {
-        return "      .section data\n" +
+        return "      .section .data\n" +
                 "      .globl " + label + "\n" +
                 label + ":\n" +
                 "      .word  " + value + "\n";

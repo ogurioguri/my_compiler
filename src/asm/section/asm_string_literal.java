@@ -9,6 +9,6 @@ public class asm_string_literal extends asm_section {
     }
 
     public String toString() {
-        return "      .section rodata\n" + "      .globl " + label + "\n" + label + ":\n" + "      .asciz  \"" + value + "\"\n";
+        return "      .section .rodata\n" + "      .globl " + label + "\n" + label + ":\n" + "      .asciz  \"" + value + "\"\n";
     }
 }
