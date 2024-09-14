@@ -1,0 +1,26 @@
+{
+    depfiles_gcc = "register.o: src/riscv/register.cpp include/riscv/register.h  include/utility/cast.h include/declarations.h include/utility/hash.h\
+",
+    values = {
+        "/usr/bin/gcc",
+        {
+            "-m64",
+            "-fvisibility=hidden",
+            "-fvisibility-inlines-hidden",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-Wpedantic",
+            "-O3",
+            "-std=c++23",
+            "-Iinclude",
+            "-isystem",
+            "/home/oguricap/.xmake/packages/f/fmt/11.0.2/8f2759149dd24c4c95ee980930242ead/include",
+            "-Wswitch-default",
+            "-DNDEBUG"
+        }
+    },
+    files = {
+        "src/riscv/register.cpp"
+    }
+}

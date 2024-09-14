@@ -114,6 +114,11 @@ public class IRBuilder implements ast_visitor {
     @Override
     public void visit(program_node node) {
         for (var def : node.children) {
+            if(def instanceof class_defination_node){
+                add_class((class_defination_node) def);
+            }
+        }
+        for (var def : node.children) {
             def.accept(this);
         }
         // the __init function is wait to be added
@@ -134,17 +139,14 @@ public class IRBuilder implements ast_visitor {
 
     }
 
-    @Override
-    public void visit(class_defination_node node) {
+    private void add_class(class_defination_node node){
         int total_size = 0;
         ArrayList<ir_type> type_list = new ArrayList<>();
         ArrayList<String> name_list = new ArrayList<>();
         HashMap<String, Integer> name_index = new HashMap<>();
         int i = 0;
-        current = new ir_scope(current);
         for (var member : node.val_declaration_list) {
             for (var name : member.name_expression_map.keySet()) {
-                int index = get_new_index(name);
                 name_list.add(name);
                 type_list.add(new ir_type(member.type));
                 name_index.put(name, i++);
@@ -158,6 +160,33 @@ public class IRBuilder implements ast_visitor {
         }
         ir_program.class_definition_nodeHashMap.put(node.class_name, new class_node(node.class_name, type_list, name_list, name_index));
         ir_program.class_definition_nodeHashMap.get(node.class_name).size = total_size;
+//        current = new ir_scope(current);
+    }
+
+    @Override
+    public void visit(class_defination_node node) {
+//        int total_size = 0;
+//        ArrayList<ir_type> type_list = new ArrayList<>();
+//        ArrayList<String> name_list = new ArrayList<>();
+//        HashMap<String, Integer> name_index = new HashMap<>();
+//        int i = 0;
+        current = new ir_scope(current);
+//        for (var member : node.val_declaration_list) {
+//            for (var name : member.name_expression_map.keySet()) {
+//                int index = get_new_index(name);
+//                name_list.add(name);
+//                type_list.add(new ir_type(member.type));
+//                name_index.put(name, i++);
+//                if(member.type.dimension == 0){
+//                    total_size += 4;
+//                }
+//                else{
+//                    total_size += 8; //array pointer is size + address
+//                }
+//            }
+//        }
+//        ir_program.class_definition_nodeHashMap.put(node.class_name, new class_node(node.class_name, type_list, name_list, name_index));
+//        ir_program.class_definition_nodeHashMap.get(node.class_name).size = total_size;
 //        current = new ir_scope(current);
         current.class_name = node.class_name;
         // add the variable this

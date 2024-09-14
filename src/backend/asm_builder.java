@@ -168,7 +168,7 @@ public class asm_builder implements IR_visitor{
 
     @Override
     public void visit(global_variable_node node){
-        if(node.value.value.equals("null")){
+        if(node.value == null || node.value.value.equals("null")){
             program.val_defines.add(new asm_val_define(node.variable.name,0));
         }
         else{

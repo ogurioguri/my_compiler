@@ -1,0 +1,11 @@
+{
+    cmdlines = {
+        "xmake f -p linux -a x86_64 -m release",
+        "xmake ",
+        "xmake lua /home/oguricap/.local/share/xmake/modules/private/utils/statistics.lua",
+        "xmake lua /home/oguricap/.local/share/xmake/actions/build/cleaner.lua",
+        "xmake ",
+        "xmake install --admin",
+        "xmake lua --root /home/oguricap/.local/share/xmake/actions/install/install_admin.lua __def  "
+    }
+}
