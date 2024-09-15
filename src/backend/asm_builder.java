@@ -366,6 +366,24 @@ public class asm_builder implements IR_visitor{
         current_block.add_instruction(new asm_mv_instrcution(current_block,t0,t3));
         store_register(result,t0);
     }
+
+    public void deal_phi_instruction(ir_phi_instruction ins){
+        var result = get_register(ins.result,t0);
+        var block_ = current_block;
+        for (var block : ins.values_blocks) {
+            current_block = block_map.get(block.value.label);
+            var exitInst = current_block.instructions.get(current_block.instructions.size() - 1);
+            if (exitInst instanceof asm_br_instruction || exitInst instanceof asm_jump_instruction || exitInst instanceof asm_return_instruction)
+                current_block.instructions.remove(exitInst);
+            var key = get_register(block.key,t1);
+            load_register(key,t1);
+            current_block.add_instruction(new asm_mv_instrcution(current_block,t0,t1));
+            if (exitInst instanceof asm_br_instruction || exitInst instanceof asm_jump_instruction || exitInst instanceof asm_return_instruction)
+                current_block.add_instruction(exitInst);
+        }
+        current_block = block_;
+        store_register(result,t0);
+    }
     @Override
     public void visit(ir_phi_instruction ins){
         var result = get_register(ins.result,t0);
@@ -378,6 +396,7 @@ public class asm_builder implements IR_visitor{
             if (exitInst instanceof asm_br_instruction || exitInst instanceof asm_jump_instruction || exitInst instanceof asm_return_instruction)
                 current_block.instructions.remove(exitInst);
             var key = get_register(block.key,t1);
+            load_register(key,t1);
             current_block.add_instruction(new asm_mv_instrcution(current_block, t0, t1));
             if (exitInst instanceof asm_br_instruction || exitInst instanceof asm_jump_instruction || exitInst instanceof asm_return_instruction)
                 current_block.add_instruction(exitInst);
