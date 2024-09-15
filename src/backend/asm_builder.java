@@ -42,12 +42,17 @@ public class asm_builder implements IR_visitor{
             }
         }else if(entity instanceof ir_literal){
             var tmp = new virtual_register();
-            current_block.add_instruction(new asm_li_instruction(current_block,object,new imm(((ir_literal) entity).value)));
-            if(!current_function.virtual_stack.containsKey(tmp)) {
-                current_function.virtual_stack.put(tmp, current_function.stack_size);
-                store_register(tmp, object);
-                current_function.stack_size += 4;
+            if((((ir_literal) entity).value).equals("null")){
+                current_block.add_instruction(new asm_li_instruction(current_block,object,new imm(0)));
             }
+            else{
+                current_block.add_instruction(new asm_li_instruction(current_block,object,new imm(((ir_literal) entity).value)));
+            }
+//            if(!current_function.virtual_stack.containsKey(tmp)) {
+//                current_function.virtual_stack.put(tmp, current_function.stack_size);
+//                store_register(tmp, object);
+//                current_function.stack_size += 4;
+//            }
             return tmp;
         }else if(entity instanceof ir_global_variable global_val){
             var tmp = new virtual_register();
@@ -137,13 +142,20 @@ public class asm_builder implements IR_visitor{
 //                current_block.add_instruction(new asm_mv_instrcution(current_block, tmp, a_registers[i]));
                 current_block.add_instruction(new asm_mv_instrcution(current_block, t0, a_registers[i]));
                 store_register(tmp, t0);
-                current_function.virtual_stack.put(tmp, current_function.stack_size);
-                current_function.stack_size += 4;
             }
             else {
                 current_function.virtual_stack.put(tmp, current_function.stack_size);
-                current_function.stack_size += 4 ;
-                current_block.add_instruction(new asm_lw_instruction(current_block, tmp, new memory_address(sp, new imm(-current_function.stack_size))));
+                load_register(tmp,t0);
+                if(-current_function.stack_size < -2048 || -current_function.stack_size > 2047){
+                    current_block.add_instruction(new asm_li_instruction(current_block,t4,new imm(-current_function.stack_size)));
+                    current_block.add_instruction(new asm_arith_instruction(current_block,t4,sp,t4,"+"));
+                    current_block.add_instruction(new asm_lw_instruction(current_block, t0, new memory_address(t4, new imm(0))));
+                }
+                else{
+                    current_block.add_instruction(new asm_lw_instruction(current_block, ra, new memory_address(sp, new imm(-current_function.stack_size))));
+                }
+//                current_block.add_instruction(new asm_lw_instruction(current_block, t0, new memory_address(sp, new imm(-current_function.stack_size))));
+                current_function.stack_size += 4;
             }
             register_map.put(node.parameters.get(i).name,tmp);
         }
@@ -152,16 +164,31 @@ public class asm_builder implements IR_visitor{
         }
 
         current_block = start_block;
-        var move_sp_inst = new asm_arithimm_instruction(current_block, sp, sp, "+",new imm(-current_function.stack_size));
-        current_block.instructions.add(0,move_sp_inst);
-        current_function.move_sp_inst = move_sp_inst;
+        if(current_function.stack_size < -2048 || current_function.stack_size > 2047){
+            current_block.instructions.add(0,new asm_li_instruction(current_block,t0,new imm(-current_function.stack_size)));
+            current_block.instructions.add(1,new asm_arith_instruction(current_block,sp,sp,t0,"+"));
+        }
+        else{
+            var move_sp_inst = new asm_arithimm_instruction(current_block, sp, sp, "+",new imm(-current_function.stack_size));
+            current_block.instructions.add(0,move_sp_inst);
+            current_function.move_sp_inst = move_sp_inst;
+        }
+
 
         //restore the return address
         for(var return_inst : return_instructions){
             current_block = return_inst.parent;
             int index = return_inst.parent.instructions.indexOf(return_inst);
-            var back = new asm_arithimm_instruction(current_block, sp, sp, "+", new imm(current_function.stack_size));
-            current_block.instructions.add(index,back);
+            if(current_function.stack_size < -2048 || current_function.stack_size > 2047){
+                current_block.instructions.add(index,new asm_li_instruction(current_block,t0,new imm(current_function.stack_size)));
+                current_block.instructions.add(index +1,new asm_arith_instruction(current_block,sp,sp,t0,"+"));
+            }
+            else{
+                var back = new asm_arithimm_instruction(current_block, sp, sp, "+", new imm(current_function.stack_size));
+                current_block.instructions.add(index,back);
+            }
+//            var back = new asm_arithimm_instruction(current_block, sp, sp, "+", new imm(current_function.stack_size));
+//            current_block.instructions.add(index,back);
         }
         current_function.count = virtual_register.count;
     }
@@ -217,19 +244,38 @@ public class asm_builder implements IR_visitor{
         else{
             for(int i = 0; i < 8; i++){
                 var tmp = get_register(ins.parameters.get(i),a_registers[i]);
-                current_block.add_instruction(new asm_mv_instrcution(current_block,a_registers[i],tmp));
+//                current_block.add_instruction(new asm_mv_instrcution(current_block,a_registers[i],tmp));
+                load_register(tmp,t0);
+                current_block.add_instruction(new asm_mv_instrcution(current_block,a_registers[i],t0));
+
             }
             for(int i = 8; i < ins.parameters.size(); i++){
                 var object = get_register(ins.parameters.get(i),t0);
-                current_block.add_instruction(new asm_sw_instruction(current_block,object,new memory_address(sp,new imm((-(ins.parameters.size()  - i) * 4)))));
+                load_register(object,t0);
+//                current_block.add_instruction(new asm_sw_instruction(current_block,t0,new memory_address(sp,new imm((-(ins.parameters.size()  - i) * 4)))));
+                if(-(ins.parameters.size()  - i) * 4 < -2048 ||-(ins.parameters.size()  - i) * 4 > 2047){
+                    current_block.add_instruction(new asm_li_instruction(current_block,t4,new imm((-(ins.parameters.size()  - i) * 4))));
+                    current_block.add_instruction(new asm_arith_instruction(current_block,t4,sp,t4,"+"));
+                    current_block.add_instruction(new asm_sw_instruction(current_block, t0, new memory_address(t4, new imm(0))));
+                }
+                else{
+                    current_block.add_instruction(new asm_sw_instruction(current_block, t0, new memory_address(sp, new imm((-(ins.parameters.size()  - i) * 4)))));
+                }
                 offset += 4;
             }
         }
-
-        var ra_address = new memory_address(sp,new imm(current_function.stack_size));
+        if(current_function.stack_size < -2048 || current_function.stack_size > 2047){
+            current_block.add_instruction(new asm_li_instruction(current_block,t4,new imm(current_function.stack_size)));
+            current_block.add_instruction(new asm_arith_instruction(current_block,t4,sp,t4,"+"));
+            current_block.add_instruction(new asm_sw_instruction(current_block, t0, new memory_address(t4, new imm(0))));
+        }
+        else{
+            current_block.add_instruction(new asm_sw_instruction(current_block, ra, new memory_address(sp, new imm(current_function.stack_size))));
+        }
+        var address = current_function.stack_size;
         current_function.stack_size += 4;
-        var save_ra = new asm_sw_instruction(current_block,ra,ra_address);
-        current_block.add_instruction(save_ra);
+//        var save_ra = new asm_sw_instruction(current_block,ra,ra_address);
+//        current_block.add_instruction(save_ra);
         if (offset!= 0)
             current_block.add_instruction(new asm_arithimm_instruction(current_block, sp, sp, "+", new imm(-offset)));
         // ? call
@@ -247,8 +293,17 @@ public class asm_builder implements IR_visitor{
         }
 
         // ! restore ra and t0-t6 and a1-a7
-        var restoreRa = new asm_lw_instruction(current_block, ra, ra_address);
-        current_block.add_instruction(restoreRa);
+
+        if(current_function.stack_size < -2048 || current_function.stack_size > 2047){
+            current_block.add_instruction(new asm_li_instruction(current_block,t4,new imm(address)));
+            current_block.add_instruction(new asm_arith_instruction(current_block,t4,sp,t4,"+"));
+            current_block.add_instruction(new asm_lw_instruction(current_block, t0, new memory_address(t4, new imm(0))));
+        }
+        else{
+            current_block.add_instruction(new asm_lw_instruction(current_block, ra, new memory_address(sp, new imm(address))));
+        }
+//        var restoreRa = new asm_lw_instruction(current_block, ra, ra_address);
+//        current_block.add_instruction(restoreRa);
 
 //        current_function.callerSaveRa.put(call, saveRa);
 //        currentFunc.callerRestoreRa.put(call, restoreRa);
@@ -345,6 +400,7 @@ public class asm_builder implements IR_visitor{
         load_register(value,t0);
         load_register(pointer,t1);
         current_block.add_instruction(new asm_sw_instruction(current_block,t0,new memory_address(t1,new imm(0))));
+
 //        store_register(value,t0);
     }
     @Override
@@ -422,18 +478,44 @@ public class asm_builder implements IR_visitor{
     }
     private void store_register(virtual_register vr , real_register object) {
         if(current_function.virtual_stack.containsKey(vr)){
-            current_block.add_instruction(new asm_sw_instruction(current_block, object, new memory_address(sp, new imm(current_function.virtual_stack.get(vr)))));
+            var address = current_function.virtual_stack.get(vr);
+            if(address < -2048 || address > 2047){
+                current_block.add_instruction(new asm_li_instruction(current_block,t4,new imm(address)));
+                current_block.add_instruction(new asm_arith_instruction(current_block,t4,sp,t4,"+"));
+                current_block.add_instruction(new asm_sw_instruction(current_block, object, new memory_address(t4, new imm(0))));
+            }
+            else{
+                current_block.add_instruction(new asm_sw_instruction(current_block, object, new memory_address(sp, new imm(address))));
+            }
         }
         else{
             current_function.virtual_stack.put(vr, current_function.stack_size);
-            current_block.add_instruction(new asm_sw_instruction(current_block, object, new memory_address(sp, new imm(current_function.stack_size))));
+            if(current_function.stack_size < -2048 || current_function.stack_size > 2047){
+                current_block.add_instruction(new asm_li_instruction(current_block,t4,new imm(current_function.stack_size)));
+                current_block.add_instruction(new asm_arith_instruction(current_block,t4,sp,t4,"+"));
+                current_block.add_instruction(new asm_sw_instruction(current_block, object, new memory_address(t4, new imm(0))));
+            }
+            else{
+                current_block.add_instruction(new asm_sw_instruction(current_block, object, new memory_address(sp, new imm(current_function.stack_size))));
+            }
+//            current_block.add_instruction(new asm_sw_instruction(current_block, object, new memory_address(sp, new imm(current_function.stack_size))));
             current_function.stack_size += 4;
         }
     }
     private void load_register(virtual_register vr , real_register object) {
         if(current_function.virtual_stack.containsKey(vr)){
-            current_block.add_instruction(new asm_lw_instruction(current_block, object, new memory_address(sp, new imm(current_function.virtual_stack.get(vr)))));
+            var address = current_function.virtual_stack.get(vr);
+            if(current_function.stack_size < -2048 || current_function.stack_size > 2047){
+                current_block.add_instruction(new asm_li_instruction(current_block,t4,new imm(address)));
+                current_block.add_instruction(new asm_arith_instruction(current_block,t4,sp,t4,"+"));
+                current_block.add_instruction(new asm_lw_instruction(current_block, object, new memory_address(t4, new imm(0))));
+            }
+            else{
+                current_block.add_instruction(new asm_lw_instruction(current_block, object, new memory_address(sp, new imm(address))));
+            }
+//            current_block.add_instruction(new asm_lw_instruction(current_block, object, new memory_address(sp, new imm(current_function.virtual_stack.get(vr)))));
         }
     }
 
 }
+

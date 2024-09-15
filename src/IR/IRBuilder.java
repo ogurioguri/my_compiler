@@ -229,9 +229,6 @@ public class IRBuilder implements ast_visitor {
 
     @Override
     public void visit(function_def node) {
-        if(node.pos.row() == 60){
-            int v = 0;
-        }
         var new_function = new function_definition_node(node.name, new ir_type(node.return_type), new ArrayList<>());
         if(current != null && current.class_name != null){
             new_function.name = current.class_name + "." + node.name;
@@ -249,7 +246,6 @@ public class IRBuilder implements ast_visitor {
             int class_index = get_new_index("this");
             String old = "this." + class_index;
             new_function.parameters.add(0,new ir_variable(old, new ir_type("ptr")));
-            new_function.parameters.get(0).name = "this";
             String new_name = "this." + get_new_index("this");
             current_block.add_instruction(new ir_alloca_instruction(current_block, new ir_variable(new_name, new ir_type("ptr")), new ir_type("ptr")));
             current_block.add_instruction(new ir_store_instruction(current_block, new ir_variable(old, new ir_type("ptr")), new ir_variable(new_name, new ir_type("ptr"))));
@@ -314,9 +310,6 @@ public class IRBuilder implements ast_visitor {
 
     @Override
     public void visit(val_declaration_node node) {
-        if(node.pos.row() == 100){
-            int v = 0;
-        }
         if (current == null) {
             for (var name : node.name_expression_map.keySet()) {
                 int index = get_new_index(name);
@@ -940,7 +933,7 @@ public class IRBuilder implements ast_visitor {
             current_entity = _tmp;
         } else if (node.op.equals("!")) {
             ir_variable _tmp = new ir_variable("_tmp." + get_new_index("_tmp"), new ir_type(node.type));
-            current_block.add_instruction(new ir_binary_instruction(current_block, "^", current_entity, new ir_literal("-1", new ir_type("i32")), _tmp));
+            current_block.add_instruction(new ir_binary_instruction(current_block, "^", current_entity, new ir_literal("1", new ir_type("i1")), _tmp));
             current_entity = _tmp;
             now_function = null;
         } else if (node.op.equals("~")) {
@@ -1161,10 +1154,13 @@ public class IRBuilder implements ast_visitor {
             var _tmp = new ir_variable("_tmp." + get_new_index("_tmp"), new ir_type(node.type));
             current_block.add_instruction(new ir_call_instruction(current_block, _tmp, "_malloc", new ArrayList<>(List.of(new ir_literal(String.valueOf(get_size(node.type.class_name)), new ir_type("i32"))))));
             //for class
-            if(ir_program.function_definition_nodeHashMap.get(node.type.class_name + "." + node.type.class_name) != null){
+            if(ir_program.class_definition_nodeHashMap.get(node.type.class_name) != null){
                 ArrayList<ir_entity> parameters = new ArrayList<>();
                 parameters.add(_tmp);
-                current_block.add_instruction(new ir_call_instruction(current_block, null, node.type.class_name + "." + node.type.class_name, parameters));
+                if(ir_program.function_definition_nodeHashMap.containsKey(node.type.class_name + "." + node.type.class_name)){
+                    current_block.add_instruction(new ir_call_instruction(current_block, null, node.type.class_name + "." + node.type.class_name, parameters));
+                }
+//                current_block.add_instruction(new ir_call_instruction(current_block, null, node.type.class_name + "." + node.type.class_name, parameters));
             }
             current_entity = _tmp;
             return;
@@ -1261,3 +1257,4 @@ public class IRBuilder implements ast_visitor {
     }
 
 }
+

@@ -13,7 +13,7 @@ public class asm_string_literal extends asm_section {
             char c = value.charAt(i);
             switch (c) {
                 case '\n' -> ret.append("\\n");
-                case '\"' -> ret.append("\\22");
+                case '\"' -> ret.append("\\\"");
                 case '\\' -> ret.append("\\\\");
                 default -> ret.append(c);
             }
