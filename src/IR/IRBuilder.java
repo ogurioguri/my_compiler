@@ -441,7 +441,7 @@ public class IRBuilder implements ast_visitor {
         current = current.parent;
         if (node.else_body != null) {
             current = new ir_scope(current);
-            current.merge_block = merge_block;
+//            current.merge_block = merge_block;
             current.cond_block = else_block;
             current_block.parent.body.add(else_block);
             current_block = else_block;
