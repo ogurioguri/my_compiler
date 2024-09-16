@@ -16,10 +16,7 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 
 
 public class Main {
@@ -50,6 +47,15 @@ public class Main {
             ir_program f = new ir_program();
             new IRBuilder(gScope,f).visit(ASTRoot);
 //            System.out.println(f.toString());
+            String filePath = "src/builtin.s";
+            try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    System.out.println(line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             asm_program asmProgram = new asm_program();
             new asm_builder(asmProgram).visit(f);
             System.out.write(asmProgram.toString().getBytes());
