@@ -47,7 +47,7 @@ public class Main {
             ir_program f = new ir_program();
             new IRBuilder(gScope,f).visit(ASTRoot);
 //            System.out.println(f.toString());
-            String filePath = "src/builtin.s";
+            String filePath = "src/util/buildin/builtin.s";
             try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
                 String line;
                 while ((line = br.readLine()) != null) {
