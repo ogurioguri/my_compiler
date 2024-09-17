@@ -147,20 +147,22 @@ public class asm_builder implements IR_visitor{
             }
             else {
                 current_function.virtual_stack.put(tmp, current_function.stack_size);
-                load_register(tmp,t0);
-                if(-current_function.stack_size < -2048 || -current_function.stack_size > 2047){
-                    if(number != -current_function.stack_size) {
-                        current_block.add_instruction(new asm_li_instruction(current_block, t4, new imm(-current_function.stack_size)));
-                        number = -current_function.stack_size;
-                        current_block.add_instruction(new asm_arith_instruction(current_block,t4,sp,t4,"+"));
-                    }
-                    current_block.add_instruction(new asm_lw_instruction(current_block, t0, new memory_address(t4, new imm(0))));
-                }
-                else{
-                    current_block.add_instruction(new asm_lw_instruction(current_block, ra, new memory_address(sp, new imm(-current_function.stack_size))));
-                }
+//                if(-current_function.stack_size < -2048 || -current_function.stack_size > 2047){
+//                    if(number != -current_function.stack_size) {
+//                        current_block.add_instruction(new asm_li_instruction(current_block, t4, new imm(-current_function.stack_size)));
+//                        number = -current_function.stack_size;
+//                        current_block.add_instruction(new asm_arith_instruction(current_block,t4,sp,t4,"+"));
+//                    }
+//                    current_block.add_instruction(new asm_lw_instruction(current_block, t0, new memory_address(t4, new imm(0))));
+//                }
+//                else{
+//                    current_block.add_instruction(new asm_lw_instruction(current_block, t0, new memory_address(sp, new imm(-current_function.stack_size))));
+//                }
+
 //                current_block.add_instruction(new asm_lw_instruction(current_block, t0, new memory_address(sp, new imm(-current_function.stack_size))));
+                current_block.add_instruction(new asm_lw_instruction(current_block, t0, new memory_address(sp, new imm(4 * (i - 8)))));
                 current_function.stack_size += 4;
+                store_register(tmp, t0);
             }
             register_map.put(node.parameters.get(i).name,tmp);
         }
@@ -177,6 +179,11 @@ public class asm_builder implements IR_visitor{
             var move_sp_inst = new asm_arithimm_instruction(current_block, sp, sp, "+",new imm(-current_function.stack_size));
             current_block.instructions.add(0,move_sp_inst);
             current_function.move_sp_inst = move_sp_inst;
+        }
+        if(node.parameters.size() >= 8 ){
+            for(int i = 8 ; i < node.parameters.size(); i++){
+                ((asm_lw_instruction)(current_block.instructions.get(i*2+1))).offset.offset.value += current_function.stack_size;
+            }
         }
 
 
@@ -285,7 +292,7 @@ public class asm_builder implements IR_visitor{
                 number = current_function.stack_size;
             }
             current_block.add_instruction(new asm_arith_instruction(current_block,t4,sp,t4,"+"));
-            current_block.add_instruction(new asm_sw_instruction(current_block, t0, new memory_address(t4, new imm(0))));
+            current_block.add_instruction(new asm_sw_instruction(current_block, ra, new memory_address(t4, new imm(0))));
         }
         else{
             current_block.add_instruction(new asm_sw_instruction(current_block, ra, new memory_address(sp, new imm(current_function.stack_size))));
@@ -312,14 +319,14 @@ public class asm_builder implements IR_visitor{
 
         // ! restore ra and t0-t6 and a1-a7
 
-        if(current_function.stack_size < -2048 || current_function.stack_size > 2047){
+        if(address < -2048 || address> 2047){
             if(number != address) {
                 current_block.add_instruction(new asm_li_instruction(current_block, t4, new imm(address)));
                 number = address;
                 current_block.add_instruction(new asm_arith_instruction(current_block,t4,sp,t4,"+"));
             }
 //            current_block.add_instruction(new asm_li_instruction(current_block,t4,new imm(address)));
-            current_block.add_instruction(new asm_lw_instruction(current_block, t0, new memory_address(t4, new imm(0))));
+            current_block.add_instruction(new asm_lw_instruction(current_block, ra, new memory_address(t4, new imm(0))));
         }
         else{
             current_block.add_instruction(new asm_lw_instruction(current_block, ra, new memory_address(sp, new imm(address))));
