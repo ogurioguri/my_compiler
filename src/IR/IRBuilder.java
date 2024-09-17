@@ -233,7 +233,7 @@ public class IRBuilder implements ast_visitor {
         if(current != null && current.class_name != null){
             new_function.name = current.class_name + "." + node.name;
         }
-        ir_program.function_definition_nodeHashMap.put(node.name, new_function);
+        ir_program.function_definition_nodeHashMap.put(new_function.name, new_function);
         current = new ir_scope(current);
         if(current_block != null){
             current_block.parent = new_function;
@@ -571,9 +571,6 @@ public class IRBuilder implements ast_visitor {
 
     @Override
     public void visit(call_expression node) {
-        if(node.pos.row() == 84){
-            int c = 0;
-        }
         node.function.accept(this);
         if(now_function == null){
             return;
