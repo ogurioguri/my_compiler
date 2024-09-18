@@ -306,7 +306,7 @@ public class asm_builder implements IR_visitor {
             current_block.add_instruction(new asm_sw_instruction(current_block, t3, new memory_address(sp, new imm(current_function.stack_size + 20))));
         }
         var address = current_function.stack_size;
-        current_function.stack_size += 20;
+        current_function.stack_size += 24;
 //        var save_ra = new asm_sw_instruction(current_block,ra,ra_address);
 //        current_block.add_instruction(save_ra);
         if (offset != 0)
