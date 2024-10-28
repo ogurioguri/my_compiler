@@ -1,62 +1,326 @@
-
-import IR.IRBuilder;
-import IR.ir_program;
-import frontend.Ast_builder;
-import ast.*;
-import org.antlr.v4.runtime.CharStream;
-import parser.*;
-import util.*;
-import frontend.*;
-import asm.*;
-import asm.section.*;
-import asm.ingredient.*;
-import backend.*;
-
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
-
-import java.io.*;
-
-
-public class Main {
-    public static void main(String[] args) throws Exception{
-        String name = "src/test.mx";
-        InputStream input = new FileInputStream(name);
-        PrintStream out = new PrintStream(new FileOutputStream("src/test.s"));
-        System.setOut(out);
-        try {
-            ast.program_node ASTRoot;
-            scope gScope = new scope(null);
-            divideLexer lexer = new divideLexer(CharStreams.fromStream(input));
-//            divideLexer lexer = new divideLexer(input);
-            lexer.removeErrorListeners();
-            lexer.addErrorListener(new mx_error());
-            divideParser parser = new divideParser(new CommonTokenStream(lexer));
-            parser.removeErrorListeners();
-            parser.addErrorListener(new mx_error());
-            ParseTree parseTreeRoot = parser.program();
-            Ast_builder astBuilder = new Ast_builder();
-            ASTRoot = (program_node)astBuilder.visit(parseTreeRoot);
-            gScope.init_globe();
-            new symbol_collector(gScope).visit(ASTRoot);
-            new symentic_checker(gScope).visit(ASTRoot);
-//            System.out.print(k);
-            ir_program f = new ir_program();
-            new IRBuilder(gScope,f).visit(ASTRoot);
-//            System.out.println(f.toString());
-
-            asm_program asmProgram = new asm_program();
-            new asm_builder(asmProgram).visit(f);
-            System.out.write(asmProgram.toString().getBytes());
-           /* AsmFn asmF = new AsmFn();
-            new InstSelector(asmF).visitFn(f);
-            new RegAlloc(asmF).work();
-            new AsmPrinter(asmF, System.out).print(); */
-        } catch (error er) {
-            System.out.println(er.toString());
-            throw new RuntimeException();
-        }
-
-    }
+declare void @print(ptr)
+declare ptr @_string.concat(ptr, ptr)
+declare ptr @_string.copy(ptr)
+declare i32 @_string.compare(ptr, ptr)
+declare ptr @_malloc_array(i32, i32)
+declare ptr @_malloc(i32)
+declare void @println(ptr)
+declare void @printInt(i32)
+declare void @printlnInt(i32)
+declare ptr @getString()
+declare i32 @getInt()
+declare ptr @toString(i32)
+declare i32 @_string.length(ptr)
+declare ptr @_string.substring(ptr, i32, i32)
+declare i32 @_string.parseInt(ptr)
+declare i32 @_string.ord(ptr, i32)
+define i32 @main() {
+entry:
+    %_i.0 = alloca i32
+    %_j.0 = alloca i32
+    %_k.0 = alloca i32
+    %_A.0 = alloca ptr
+    %__tmp.0 = call ptr @_malloc_array(i32 4, i32 3)
+    %__tmp.1 = alloca i32
+    store i32 0, ptr %__tmp.1
+    br label %for.cond0
+for.cond0:
+    %_i.1 = load i32, ptr %__tmp.1
+    %_cond.0 = icmp slt i32 %_i.1, 3
+    br i1 %_cond.0, label %for.body0, label %for.merge0
+for.body0:
+    %__tmp.2 = getelementptr ptr, ptr %__tmp.0, i32 %_i.1
+    %__tmp.3 = call ptr @_malloc_array(i32 4, i32 4)
+    store ptr %__tmp.3, ptr %__tmp.2
+    br label %for.step0
+for.step0:
+    %__tmp.4 = add i32 %_i.1, 1
+    store i32 %__tmp.4, ptr %__tmp.1
+    br label %for.cond0
+for.merge0:
+    store ptr %__tmp.0, ptr %_A.0
+    %_B.0 = alloca ptr
+    %__tmp.5 = call ptr @_malloc_array(i32 4, i32 4)
+    %__tmp.6 = alloca i32
+    store i32 0, ptr %__tmp.6
+    br label %for.cond1
+for.cond1:
+    %_i.2 = load i32, ptr %__tmp.6
+    %_cond.1 = icmp slt i32 %_i.2, 4
+    br i1 %_cond.1, label %for.body1, label %for.merge1
+for.body1:
+    %__tmp.7 = getelementptr ptr, ptr %__tmp.5, i32 %_i.2
+    %__tmp.8 = call ptr @_malloc_array(i32 4, i32 2)
+    store ptr %__tmp.8, ptr %__tmp.7
+    br label %for.step1
+for.step1:
+    %__tmp.9 = add i32 %_i.2, 1
+    store i32 %__tmp.9, ptr %__tmp.6
+    br label %for.cond1
+for.merge1:
+    store ptr %__tmp.5, ptr %_B.0
+    %_C.0 = alloca ptr
+    %__tmp.10 = call ptr @_malloc_array(i32 4, i32 3)
+    %__tmp.11 = alloca i32
+    store i32 0, ptr %__tmp.11
+    br label %for.cond2
+for.cond2:
+    %_i.3 = load i32, ptr %__tmp.11
+    %_cond.2 = icmp slt i32 %_i.3, 3
+    br i1 %_cond.2, label %for.body2, label %for.merge2
+for.body2:
+    %__tmp.12 = getelementptr ptr, ptr %__tmp.10, i32 %_i.3
+    %__tmp.13 = call ptr @_malloc_array(i32 4, i32 2)
+    store ptr %__tmp.13, ptr %__tmp.12
+    br label %for.step2
+for.step2:
+    %__tmp.14 = add i32 %_i.3, 1
+    store i32 %__tmp.14, ptr %__tmp.11
+    br label %for.cond2
+for.merge2:
+    store ptr %__tmp.10, ptr %_C.0
+    %__tmp.15 = load i32, ptr %_i.3
+    store i32 0, ptr %_i.3
+    br label %for.cond3
+for.cond3:
+    %__tmp.16 = load i32, ptr %_i.3
+    %__tmp.17 = icmp slt i32 %__tmp.16, 3
+    br i1 %__tmp.17, label %for.body3, label %for.merge3
+for.body3:
+    %__tmp.18 = load i32, ptr %_j.0
+    store i32 0, ptr %_j.0
+    br label %for.cond4
+for.cond4:
+    %__tmp.19 = load i32, ptr %_j.0
+    %__tmp.20 = icmp slt i32 %__tmp.19, 4
+    br i1 %__tmp.20, label %for.body4, label %for.merge4
+for.body4:
+    %__tmp.21 = load ptr, ptr %_A.0
+    %__tmp.22 = load i32, ptr %_i.3
+    %__tmp.23 = getelementptr ptr, ptr %__tmp.21, i32 %__tmp.22
+    %__tmp.24 = load ptr, ptr %__tmp.23
+    %__tmp.25 = load i32, ptr %_j.0
+    %__tmp.26 = getelementptr i32, ptr %__tmp.24, i32 %__tmp.25
+    %__tmp.27 = load i32, ptr %__tmp.26
+    %__tmp.28 = load i32, ptr %_i.3
+    %__tmp.29 = load i32, ptr %_j.0
+    %__tmp.30 = add i32 %__tmp.28, %__tmp.29
+    store i32 %__tmp.30, ptr %__tmp.26
+    br label %for.step4
+for.step4:
+    %__tmp.31 = load i32, ptr %_j.0
+    %__tmp.32 = add i32 %__tmp.31, 1
+    store i32 %__tmp.32, ptr %_j.0
+    br label %for.cond4
+for.merge4:
+    br label %for.step3
+for.step3:
+    %__tmp.33 = load i32, ptr %_i.3
+    %__tmp.34 = add i32 %__tmp.33, 1
+    store i32 %__tmp.34, ptr %_i.3
+    br label %for.cond3
+for.merge3:
+    %__tmp.35 = load i32, ptr %_i.3
+    store i32 0, ptr %_i.3
+    br label %for.cond5
+for.cond5:
+    %__tmp.36 = load i32, ptr %_i.3
+    %__tmp.37 = icmp slt i32 %__tmp.36, 4
+    br i1 %__tmp.37, label %for.body5, label %for.merge5
+for.body5:
+    %__tmp.38 = load i32, ptr %_j.0
+    store i32 0, ptr %_j.0
+    br label %for.cond6
+for.cond6:
+    %__tmp.39 = load i32, ptr %_j.0
+    %__tmp.40 = icmp slt i32 %__tmp.39, 2
+    br i1 %__tmp.40, label %for.body6, label %for.merge6
+for.body6:
+    %__tmp.41 = load ptr, ptr %_B.0
+    %__tmp.42 = load i32, ptr %_i.3
+    %__tmp.43 = getelementptr ptr, ptr %__tmp.41, i32 %__tmp.42
+    %__tmp.44 = load ptr, ptr %__tmp.43
+    %__tmp.45 = load i32, ptr %_j.0
+    %__tmp.46 = getelementptr i32, ptr %__tmp.44, i32 %__tmp.45
+    %__tmp.47 = load i32, ptr %__tmp.46
+    %__tmp.48 = load i32, ptr %_i.3
+    %__tmp.49 = load i32, ptr %_j.0
+    %__tmp.50 = mul i32 %__tmp.48, %__tmp.49
+    store i32 %__tmp.50, ptr %__tmp.46
+    br label %for.step6
+for.step6:
+    %__tmp.51 = load i32, ptr %_j.0
+    %__tmp.52 = add i32 %__tmp.51, 1
+    store i32 %__tmp.52, ptr %_j.0
+    br label %for.cond6
+for.merge6:
+    br label %for.step5
+for.step5:
+    %__tmp.53 = load i32, ptr %_i.3
+    %__tmp.54 = add i32 %__tmp.53, 1
+    store i32 %__tmp.54, ptr %_i.3
+    br label %for.cond5
+for.merge5:
+    %__tmp.55 = load i32, ptr %_i.3
+    store i32 0, ptr %_i.3
+    br label %for.cond7
+for.cond7:
+    %__tmp.56 = load i32, ptr %_i.3
+    %__tmp.57 = icmp slt i32 %__tmp.56, 3
+    br i1 %__tmp.57, label %for.body7, label %for.merge7
+for.body7:
+    %__tmp.58 = load i32, ptr %_j.0
+    store i32 0, ptr %_j.0
+    br label %for.cond8
+for.cond8:
+    %__tmp.59 = load i32, ptr %_j.0
+    %__tmp.60 = icmp slt i32 %__tmp.59, 2
+    br i1 %__tmp.60, label %for.body8, label %for.merge8
+for.body8:
+    %__tmp.61 = load ptr, ptr %_C.0
+    %__tmp.62 = load i32, ptr %_i.3
+    %__tmp.63 = getelementptr ptr, ptr %__tmp.61, i32 %__tmp.62
+    %__tmp.64 = load ptr, ptr %__tmp.63
+    %__tmp.65 = load i32, ptr %_j.0
+    %__tmp.66 = getelementptr i32, ptr %__tmp.64, i32 %__tmp.65
+    %__tmp.67 = load i32, ptr %__tmp.66
+    store i32 0, ptr %__tmp.66
+    br label %for.step8
+for.step8:
+    %__tmp.68 = load i32, ptr %_j.0
+    %__tmp.69 = add i32 %__tmp.68, 1
+    store i32 %__tmp.69, ptr %_j.0
+    br label %for.cond8
+for.merge8:
+    br label %for.step7
+for.step7:
+    %__tmp.70 = load i32, ptr %_i.3
+    %__tmp.71 = add i32 %__tmp.70, 1
+    store i32 %__tmp.71, ptr %_i.3
+    br label %for.cond7
+for.merge7:
+    %__tmp.72 = load i32, ptr %_i.3
+    store i32 0, ptr %_i.3
+    br label %for.cond9
+for.cond9:
+    %__tmp.73 = load i32, ptr %_i.3
+    %__tmp.74 = icmp slt i32 %__tmp.73, 3
+    br i1 %__tmp.74, label %for.body9, label %for.merge9
+for.body9:
+    %__tmp.75 = load i32, ptr %_j.0
+    store i32 0, ptr %_j.0
+    br label %for.cond10
+for.cond10:
+    %__tmp.76 = load i32, ptr %_j.0
+    %__tmp.77 = icmp slt i32 %__tmp.76, 2
+    br i1 %__tmp.77, label %for.body10, label %for.merge10
+for.body10:
+    %__tmp.78 = load i32, ptr %_k.0
+    store i32 0, ptr %_k.0
+    br label %for.cond11
+for.cond11:
+    %__tmp.79 = load i32, ptr %_k.0
+    %__tmp.80 = icmp slt i32 %__tmp.79, 4
+    br i1 %__tmp.80, label %for.body11, label %for.merge11
+for.body11:
+    %__tmp.81 = load ptr, ptr %_C.0
+    %__tmp.82 = load i32, ptr %_i.3
+    %__tmp.83 = getelementptr ptr, ptr %__tmp.81, i32 %__tmp.82
+    %__tmp.84 = load ptr, ptr %__tmp.83
+    %__tmp.85 = load i32, ptr %_j.0
+    %__tmp.86 = getelementptr i32, ptr %__tmp.84, i32 %__tmp.85
+    %__tmp.87 = load i32, ptr %__tmp.86
+    %__tmp.88 = load ptr, ptr %_C.0
+    %__tmp.89 = load i32, ptr %_i.3
+    %__tmp.90 = getelementptr ptr, ptr %__tmp.88, i32 %__tmp.89
+    %__tmp.91 = load ptr, ptr %__tmp.90
+    %__tmp.92 = load i32, ptr %_j.0
+    %__tmp.93 = getelementptr i32, ptr %__tmp.91, i32 %__tmp.92
+    %__tmp.94 = load i32, ptr %__tmp.93
+    %__tmp.95 = load ptr, ptr %_A.0
+    %__tmp.96 = load i32, ptr %_i.3
+    %__tmp.97 = getelementptr ptr, ptr %__tmp.95, i32 %__tmp.96
+    %__tmp.98 = load ptr, ptr %__tmp.97
+    %__tmp.99 = load i32, ptr %_k.0
+    %__tmp.100 = getelementptr i32, ptr %__tmp.98, i32 %__tmp.99
+    %__tmp.101 = load i32, ptr %__tmp.100
+    %__tmp.102 = load ptr, ptr %_B.0
+    %__tmp.103 = load i32, ptr %_k.0
+    %__tmp.104 = getelementptr ptr, ptr %__tmp.102, i32 %__tmp.103
+    %__tmp.105 = load ptr, ptr %__tmp.104
+    %__tmp.106 = load i32, ptr %_j.0
+    %__tmp.107 = getelementptr i32, ptr %__tmp.105, i32 %__tmp.106
+    %__tmp.108 = load i32, ptr %__tmp.107
+    %__tmp.109 = mul i32 %__tmp.101, %__tmp.108
+    %__tmp.110 = add i32 %__tmp.94, %__tmp.109
+    store i32 %__tmp.110, ptr %__tmp.86
+    br label %for.step11
+for.step11:
+    %__tmp.111 = load i32, ptr %_k.0
+    %__tmp.112 = add i32 %__tmp.111, 1
+    store i32 %__tmp.112, ptr %_k.0
+    br label %for.cond11
+for.merge11:
+    br label %for.step10
+for.step10:
+    %__tmp.113 = load i32, ptr %_j.0
+    %__tmp.114 = add i32 %__tmp.113, 1
+    store i32 %__tmp.114, ptr %_j.0
+    br label %for.cond10
+for.merge10:
+    br label %for.step9
+for.step9:
+    %__tmp.115 = load i32, ptr %_i.3
+    %__tmp.116 = add i32 %__tmp.115, 1
+    store i32 %__tmp.116, ptr %_i.3
+    br label %for.cond9
+for.merge9:
+    %_ans.0 = alloca i32
+    store i32 0, ptr %_ans.0
+    %__tmp.117 = load i32, ptr %_i.3
+    store i32 0, ptr %_i.3
+    br label %for.cond12
+for.cond12:
+    %__tmp.118 = load i32, ptr %_i.3
+    %__tmp.119 = icmp slt i32 %__tmp.118, 3
+    br i1 %__tmp.119, label %for.body12, label %for.merge12
+for.body12:
+    %__tmp.120 = load i32, ptr %_j.0
+    store i32 0, ptr %_j.0
+    br label %for.cond13
+for.cond13:
+    %__tmp.121 = load i32, ptr %_j.0
+    %__tmp.122 = icmp slt i32 %__tmp.121, 2
+    br i1 %__tmp.122, label %for.body13, label %for.merge13
+for.body13:
+    %__tmp.123 = load i32, ptr %_ans.0
+    %__tmp.124 = load i32, ptr %_ans.0
+    %__tmp.125 = load ptr, ptr %_C.0
+    %__tmp.126 = load i32, ptr %_i.3
+    %__tmp.127 = getelementptr ptr, ptr %__tmp.125, i32 %__tmp.126
+    %__tmp.128 = load ptr, ptr %__tmp.127
+    %__tmp.129 = load i32, ptr %_j.0
+    %__tmp.130 = getelementptr i32, ptr %__tmp.128, i32 %__tmp.129
+    %__tmp.131 = load i32, ptr %__tmp.130
+    %__tmp.132 = add i32 %__tmp.124, %__tmp.131
+    store i32 %__tmp.132, ptr %_ans.0
+    br label %for.step13
+for.step13:
+    %__tmp.133 = load i32, ptr %_j.0
+    %__tmp.134 = add i32 %__tmp.133, 1
+    store i32 %__tmp.134, ptr %_j.0
+    br label %for.cond13
+for.merge13:
+    br label %for.step12
+for.step12:
+    %__tmp.135 = load i32, ptr %_i.3
+    %__tmp.136 = add i32 %__tmp.135, 1
+    store i32 %__tmp.136, ptr %_i.3
+    br label %for.cond12
+for.merge12:
+    %__tmp.138 = load i32, ptr %_ans.0
+    %__tmp.137 = call ptr @toString(i32 %__tmp.138)
+    call void @print(ptr %__tmp.137)
+    ret i32 0
 }
+

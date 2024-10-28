@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Stack;
 
+import static java.lang.System.exit;
+
 
 public class MEm2Reg {
     public ir_program program = null;
@@ -24,6 +26,7 @@ public class MEm2Reg {
     HashSet<basic_block> visited = new HashSet<>();
     HashMap<String, Stack<ir_entity>> value_stack = new HashMap<>();
     HashMap<ir_entity,String> original_name = new HashMap<>();
+    HashSet<ir_entity> original_entity = new HashSet<>();
     int add_number = 0;
 
     MEm2Reg(ir_program program) {
@@ -57,6 +60,22 @@ public class MEm2Reg {
             value_stack.put(((ir_variable)entity).name, new Stack<>());
             original_name.put(entity, ((ir_variable)entity).name);
         }
+        for (basic_block block : function.body) {
+            ArrayList<ir_instruction> copy = new ArrayList<>(block.instructions);
+            for (ir_instruction instruction : copy) {
+                if (instruction instanceof ir_alloca_instruction && !def_blocks.containsKey(((ir_alloca_instruction) instruction).result)) {
+                    block.instructions.remove(instruction);
+                }
+            }
+        }
+        HashSet<ir_entity> copy = new HashSet<>(allocated);
+        original_entity.addAll(allocated);
+        for (var entity : copy) {
+            if (!def_blocks.containsKey(entity)) {
+                allocated.remove(entity);
+            }
+        }
+
     }
 
     //cope with the alloca instruction
@@ -113,6 +132,9 @@ public class MEm2Reg {
 
         for (var instruction : block.instructions) {
             if (instruction instanceof ir_load_instruction load) {
+                if(load.pointer.toString().equals("%_b.0")){
+                    int i = 0;
+                }
                 ir_entity entity = (load).pointer;
                 if (entity instanceof ir_variable variable) {
                     if (allocated.contains(variable)) {
@@ -135,6 +157,11 @@ public class MEm2Reg {
                             }
                         } else {
                             remove_list.add(instruction);
+                        }
+                    }
+                    else{
+                        if(original_entity.contains(variable)){
+                            exit(0);
                         }
                     }
                 }

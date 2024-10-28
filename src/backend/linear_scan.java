@@ -184,19 +184,27 @@ public class linear_scan {
     public void change_imm(asm_instruction inst , asm_function function){
         if(inst instanceof asm_sw_instruction sw){
             sw.address.offset.value += function.stack_size;
+            if(inst.neg)
+                sw.address.offset.value = -sw.address.offset.value;
         }
         if(inst instanceof asm_lw_instruction lw){
             lw.offset.offset.value += function.stack_size;
+            if(inst.neg)
+                lw.offset.offset.value = -lw.offset.offset.value;
         }
         if(inst instanceof asm_arithimm_instruction arith){
             arith.immediate.value += function.stack_size;
+            if(inst.neg)
+                arith.immediate.value = -arith.immediate.value;
         }
+
     }
 
     public void execute_function(asm_function function){
         ArrayList<asm_instruction> final_stack_change = new ArrayList<>();
         for(var block : function.body){
-            for(var inst : block.instructions){
+            ArrayList<asm_instruction> copy = new ArrayList<>(block.instructions);
+            for(var inst : copy){
                 if(inst.need_imm){
                     change_imm(inst,function);
                 }

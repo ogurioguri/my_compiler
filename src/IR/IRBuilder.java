@@ -1117,7 +1117,7 @@ public class IRBuilder implements ast_visitor {
 
         current_block.parent.body.add(cond_block);
         current_block = cond_block;
-        var i = new ir_variable("i." + get_new_index("i"), new ir_type("i32"));
+        var i = new ir_variable("1i." + get_new_index("1i"), new ir_type("i32"));
         current_block.add_instruction(new ir_load_instruction(current_block, i, _tmp));
         var cond = new ir_variable("cond." + get_new_index("cond"), new ir_type("i32"));
         current_block.add_instruction(new ir_cmp_instruction(current_block, "<", i, size_entity, cond));

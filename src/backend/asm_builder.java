@@ -34,7 +34,7 @@ public class asm_builder implements IR_visitor {
     public void caller_begin() {
         current_block.add_instruction(new asm_comment(current_block, "caller"));
         for (int i = 0; i < 10; ++i) {
-            var inst = new asm_sw_instruction(current_block, s_registers[0], new memory_address(sp, new imm(4 * i)));
+            var inst = new asm_sw_instruction(current_block, s_registers[i], new memory_address(sp, new imm(4 * i)));
             inst.add_stack = 4;
             current_block.add_instruction(inst);
         }
@@ -43,7 +43,7 @@ public class asm_builder implements IR_visitor {
     public void caller_end() {
         current_block.add_instruction(new asm_comment(current_block, "caller"));
         for (int i = 0; i < 10; ++i) {
-            var inst = new asm_lw_instruction(current_block, s_registers[0], new memory_address(sp, new imm(4 * i)));
+            var inst = new asm_lw_instruction(current_block, s_registers[i], new memory_address(sp, new imm(4 * i)));
             current_block.add_instruction(inst);
         }
     }
@@ -185,8 +185,9 @@ public class asm_builder implements IR_visitor {
         }
 
         current_block = start_block;
-        var move_sp_inst = new asm_arithimm_instruction(current_block, sp, sp, "-", new imm(0));
+        var move_sp_inst = new asm_arithimm_instruction(current_block, sp, sp, "+", new imm(0));
         move_sp_inst.need_final_imm = true;
+        move_sp_inst.neg = true;
         current_block.instructions.add(0, move_sp_inst);
         current_function.move_sp_inst = move_sp_inst;
 
@@ -291,35 +292,35 @@ public class asm_builder implements IR_visitor {
     }
 
     public void callee_end() {
-        var inst = new asm_sw_instruction(current_block, ra, new memory_address(sp, new imm(-28)));
+        var inst = new asm_lw_instruction(current_block, ra, new memory_address(sp, new imm(-32)));
         inst.save_address_index = save_index;
         inst.need_imm = true;
         current_block.add_instruction(inst);
-        inst = new asm_sw_instruction(current_block, t0, new memory_address(sp, new imm(-24)));
+        inst = new asm_lw_instruction(current_block, t0, new memory_address(sp, new imm(-28)));
         inst.save_address_index = save_index;
         inst.need_imm = true;
         current_block.add_instruction(inst);
-        inst = new asm_sw_instruction(current_block, t1, new memory_address(sp, new imm(-20)));
+        inst = new asm_lw_instruction(current_block, t1, new memory_address(sp, new imm(-24)));
         inst.save_address_index = save_index;
         inst.need_imm = true;
         current_block.add_instruction(inst);
-        inst = new asm_sw_instruction(current_block, t2, new memory_address(sp, new imm(-16)));
+        inst = new asm_lw_instruction(current_block, t2, new memory_address(sp, new imm(-20)));
         inst.save_address_index = save_index;
         inst.need_imm = true;
         current_block.add_instruction(inst);
-        inst = new asm_sw_instruction(current_block, t3, new memory_address(sp, new imm(-12)));
+        inst = new asm_lw_instruction(current_block, t3, new memory_address(sp, new imm(-16)));
         inst.save_address_index = save_index;
         inst.need_imm = true;
         current_block.add_instruction(inst);
-        inst = new asm_sw_instruction(current_block, t4, new memory_address(sp, new imm(-8)));
+        inst = new asm_lw_instruction(current_block, t4, new memory_address(sp, new imm(-12)));
         inst.save_address_index = save_index;
         inst.need_imm = true;
         current_block.add_instruction(inst);
-        inst = new asm_sw_instruction(current_block, real_register.get_reg("t5"), new memory_address(sp, new imm(-4)));
+        inst = new asm_lw_instruction(current_block, real_register.get_reg("t5"), new memory_address(sp, new imm(-8)));
         inst.save_address_index = save_index;
         inst.need_imm = true;
         current_block.add_instruction(inst);
-        inst = new asm_sw_instruction(current_block, real_register.get_reg("t6"), new memory_address(sp, new imm(0)));
+        inst = new asm_lw_instruction(current_block, real_register.get_reg("t6"), new memory_address(sp, new imm(-4)));
         inst.save_address_index = save_index;
         inst.need_imm = true;
         current_block.add_instruction(inst);
