@@ -3,6 +3,7 @@ package asm.ingredient;
 public class real_register extends register{
     public String name;
     static real_register[] registers = null;
+    public static boolean[] used = new boolean[32];
     public real_register(String name){
         this.name = name;
     }
@@ -45,9 +46,10 @@ public class real_register extends register{
         throw new RuntimeException("PhysicalRegister.getColor: unknown register name");
     }
 
-
     public static real_register get_reg(int index){
         if(registers == null){
+            for(int i = 0; i < 32; ++i)
+                used[i] = false;
             registers = new real_register[32];
             registers[0] = new real_register("zero");
             registers[1] = new real_register("ra");
@@ -71,6 +73,8 @@ public class real_register extends register{
 
     public static real_register get_reg(String name){
         if(registers == null){
+            for(int i = 0; i < 32; ++i)
+                used[i] = false;
             registers = new real_register[32];
             registers[0] = new real_register("zero");
             registers[1] = new real_register("ra");
@@ -95,21 +99,4 @@ public class real_register extends register{
     public String toString(){
         return name;
     }
-
-    public int get_this_index(){
-        if(name.equals("ra")) throw new RuntimeException("real_register.get_this_index : ra is not a color");
-        if(name.equals("sp")) throw new RuntimeException("real_register.get_this_index : sp is not a color");
-        if(name.startsWith("a")) return Integer.parseInt(name.substring(1)) + 10;
-        if(name.equals("t0")) return 5;
-        if(name.equals("t1")) return 6;
-        if(name.equals("t2")) return 7;
-        if(name.equals("s0")) return 8;
-        if(name.equals("s1")) return 9;
-        if(name.startsWith("s")) return Integer.parseInt(name.substring(1)) + 16;
-        if(name.startsWith("t")) return Integer.parseInt(name.substring(1)) + 25;
-        throw new RuntimeException("real_register.get_this_index : unknown register name");
-    }
-
-
-
 }

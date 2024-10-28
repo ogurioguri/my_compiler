@@ -25,4 +25,12 @@ public class asm_lw_instruction extends asm_instruction{
     public void setDef(register reg){
         rd = reg;
     }
+
+    public register use1(){
+        return offset.base;
+    }
+
+    public void setUse1(register reg){
+        offset.base = reg;
+    }
 }

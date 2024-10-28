@@ -841,12 +841,14 @@ public class IRBuilder implements ast_visitor {
                 var instruction = new ir_phi_instruction(current_block, return_value, new ArrayList<>());
                 instruction.add_value(current_entity, thenBlock);
                 instruction.add_value(lhsVar, elseBlock);
-                current_block.add_instruction(instruction);
+//                current_block.add_instruction(instruction);
+                current_block.phi_map.put(return_value, instruction);
             } else {
                 var instruction = new ir_phi_instruction(current_block, return_value, new ArrayList<>());
                 instruction.add_value(lhsVar, thenBlock);
                 instruction.add_value(current_entity, elseBlock);
-                current_block.add_instruction(instruction);
+//                current_block.add_instruction(instruction);
+                current_block.phi_map.put(return_value, instruction);
             }
             current_entity = return_value;
             return;
@@ -1245,7 +1247,7 @@ public class IRBuilder implements ast_visitor {
             var instruction = new ir_phi_instruction(current_block, return_value, new ArrayList<>());
             instruction.add_value(thenValue, thenBlock);
             instruction.add_value(elseValue, elseBlock);
-            current_block.add_instruction(instruction);
+            current_block.phi_map.put(return_value,instruction);
             current_entity = return_value;
         } else {
             current_entity = null;

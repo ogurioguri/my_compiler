@@ -3,6 +3,7 @@ package IR.instruction;
 import IR.IR_visitor;
 import IR.basic_block;
 import IR.entity.ir_entity;
+import asm.ingredient.register;
 
 public class ir_return_instruction extends ir_instruction {
     public ir_entity value;

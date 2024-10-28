@@ -19,6 +19,17 @@ public class ir_variable extends ir_entity {
         return "%_" + name;
     }
 
+    public boolean equals(Object obj) {
+        if (obj instanceof ir_variable) {
+            return ((ir_variable) obj).name.equals(name);
+        }
+        return false;
+    }
+
+    public int hashCode() {
+        return name.hashCode();
+    }
+
     @Override
     public ir_type return_type() {
         return type;

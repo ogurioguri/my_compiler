@@ -16,4 +16,15 @@ public class virtual_register extends register{
         return "vr" + id;
     }
 
+    public int hashCode() {
+        return id;
+    }
+
+    public boolean equals(Object obj) {
+        if (obj instanceof virtual_register) {
+            return ((virtual_register) obj).id == id;
+        }
+        return false;
+    }
+
 }

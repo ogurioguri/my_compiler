@@ -10,10 +10,10 @@ public class ir_binary_instruction extends ir_instruction {
     public String op;
     public ir_entity lhs;
     public ir_entity rhs;
-    public ir_variable result;
+    public ir_entity result;
 
 
-    public ir_binary_instruction(basic_block parent_block, String op_, ir_entity lhs_, ir_entity rhs_, ir_variable result_) {
+    public ir_binary_instruction(basic_block parent_block, String op_, ir_entity lhs_, ir_entity rhs_, ir_entity result_) {
         super(parent_block);
         this.op = op_;
         this.lhs = lhs_;
