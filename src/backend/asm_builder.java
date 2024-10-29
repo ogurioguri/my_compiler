@@ -40,11 +40,11 @@ public class asm_builder implements IR_visitor {
         }
     }
 
-    public void caller_end() {
+    public void caller_end(int index) {
         current_block.add_instruction(new asm_comment(current_block, "caller"));
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 9; i >=0; --i) {
             var inst = new asm_lw_instruction(current_block, s_registers[i], new memory_address(sp, new imm(4 * i)));
-            current_block.add_instruction(inst);
+            current_block.instructions.add(index,inst);
         }
     }
 
@@ -154,7 +154,7 @@ public class asm_builder implements IR_visitor {
         current_block = program.add_function(node.name);
         var start_block = current_block;
         current_function = current_block.parent;
-        if (node.name.equals("main")) {
+        if (!node.name.equals("main")) {
             caller_begin();
         }
         for (int i = 0; i < node.parameters.size(); ++i) {
@@ -204,14 +204,14 @@ public class asm_builder implements IR_visitor {
             int index = return_inst.parent.instructions.indexOf(return_inst);
 
             var back = new asm_arithimm_instruction(current_block, sp, sp, "+", new imm(0));
+            if (!node.name.equals("main")) {
+                caller_end(index);
+            }
             back.need_final_imm = true;
             current_block.instructions.add(index, back);
 
 //            var back = new asm_arithimm_instruction(current_block, sp, sp, "+", new imm(current_function.stack_size));
 //            current_block.instructions.add(index,back);
-        }
-        if (node.name.equals("main")) {
-            caller_end();
         }
         current_function.count = virtual_register.count;
     }
@@ -261,31 +261,31 @@ public class asm_builder implements IR_visitor {
         inst.add_stack = 4;
         inst.need_imm = true;
         current_block.add_instruction(inst);
-        inst = new asm_sw_instruction(current_block, t0, new memory_address(sp, new imm(4)));
+        inst = new asm_sw_instruction(current_block, t0, new memory_address(sp, new imm(0)));
         inst.add_stack = 4;
         inst.need_imm = true;
         current_block.add_instruction(inst);
-        inst = new asm_sw_instruction(current_block, t1, new memory_address(sp, new imm(8)));
+        inst = new asm_sw_instruction(current_block, t1, new memory_address(sp, new imm(0)));
         inst.add_stack = 4;
         inst.need_imm = true;
         current_block.add_instruction(inst);
-        inst = new asm_sw_instruction(current_block, t2, new memory_address(sp, new imm(12)));
+        inst = new asm_sw_instruction(current_block, t2, new memory_address(sp, new imm(0)));
         inst.add_stack = 4;
         inst.need_imm = true;
         current_block.add_instruction(inst);
-        inst = new asm_sw_instruction(current_block, t3, new memory_address(sp, new imm(16)));
+        inst = new asm_sw_instruction(current_block, t3, new memory_address(sp, new imm(0)));
         inst.add_stack = 4;
         inst.need_imm = true;
         current_block.add_instruction(inst);
-        inst = new asm_sw_instruction(current_block, t4, new memory_address(sp, new imm(20)));
+        inst = new asm_sw_instruction(current_block, t4, new memory_address(sp, new imm(0)));
         inst.add_stack = 4;
         inst.need_imm = true;
         current_block.add_instruction(inst);
-        inst = new asm_sw_instruction(current_block, real_register.get_reg("t5"), new memory_address(sp, new imm(24)));
+        inst = new asm_sw_instruction(current_block, real_register.get_reg("t5"), new memory_address(sp, new imm(0)));
         inst.add_stack = 4;
         inst.need_imm = true;
         current_block.add_instruction(inst);
-        inst = new asm_sw_instruction(current_block, real_register.get_reg("t6"), new memory_address(sp, new imm(28)));
+        inst = new asm_sw_instruction(current_block, real_register.get_reg("t6"), new memory_address(sp, new imm(0)));
         inst.add_stack = 4;
         inst.need_imm = true;
         current_block.add_instruction(inst);
@@ -497,8 +497,8 @@ public class asm_builder implements IR_visitor {
         var index = get_register(ins.index.get(ins.index.size() - 1)); // t1
         var tmp1 = new virtual_register();  // t2
         var tmp2 = new virtual_register();  // t3
-        current_block.add_instruction(new asm_arith_instruction(current_block, tmp1, ptr_tmp, get_register(new ir_literal("4", new ir_type("i32"))), "*"));
-        current_block.add_instruction(new asm_arith_instruction(current_block, tmp2, index, tmp1, "+"));
+        current_block.add_instruction(new asm_arith_instruction(current_block, tmp1, index, get_register(new ir_literal("4", new ir_type("i32"))), "*"));
+        current_block.add_instruction(new asm_arith_instruction(current_block, tmp2, ptr_tmp, tmp1, "+"));
         current_block.add_instruction(new asm_mv_instrcution(current_block, get_register(ins.result), tmp2));
 //        load_register(index, t0);
 //        var tmp3 = get_register(new ir_literal("4", new ir_type("i32")), t1);

@@ -72,7 +72,7 @@ public class linear_scan {
 //                int i = 0;
 //            }
             for(var inst : block.instructions){
-                if(inst.index == 67){
+                if(inst.index == 32){
                     int j = 0;
                 }
                 if(inst.def() != null && inst.def() instanceof virtual_register){
@@ -81,12 +81,12 @@ public class linear_scan {
                     }
                 }
                 if(inst.use1() != null && inst.use1() instanceof virtual_register reg){
-                    if((register_begin.containsKey(reg) && !register_end.containsKey(reg)) || block.out.contains(inst.use1())){
+                    if((register_begin.containsKey(reg) ) || block.out.contains(inst.use1())){
                         register_end.put(reg,inst.index);
                     }
                 }
                 if(inst.use2() != null && inst.use2() instanceof virtual_register reg){
-                    if((register_begin.containsKey(reg) && !register_end.containsKey(reg)) || block.out.contains(inst.use2())){
+                    if((register_begin.containsKey(reg) ) || block.out.contains(inst.use2())){
                         register_end.put(reg,inst.index);
                     }
                 }

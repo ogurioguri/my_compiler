@@ -69,6 +69,7 @@ public class asm_block extends asm_section{
         StringBuilder sb = new StringBuilder();
         sb.append(label).append(":\n");
         for (asm_instruction inst : instructions) {
+            sb.append("      #").append(inst.index).append("\n");
             sb.append("      ").append(inst.toString()).append("\n");
         }
         return sb.toString();
