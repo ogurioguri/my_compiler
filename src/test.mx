@@ -1,24 +1,18 @@
 /*
-Test Package: Codegen
-Author: Admin
-Time: 2020-02-02
-Input:
-=== input ===
-=== end ===
-Output:
-=== output ===
-=== end ===
-ExitCode: 10
-InstLimit: -1
-Origin Package: Codegen Pretest-577
+Test Package: Sema_Local_Preview
+Test Target: Basic
+Author: 16' Yikai Li
+Time: 2019-11-11
+Verdict: Success
+Origin Package: Semantic Pretest
 */
-int min(int a, int b) {
-    if (a <= b) return a;
-    return b;
-}
+class Array{
+    int size(){
+        return 0;
+    }
+};
 
-int main() {
-    int x = 10;
-    int y = 20;
-    return min(x, y);
+int main(){
+    Array a = null;
+    a.size();
 }

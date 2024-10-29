@@ -50,6 +50,7 @@ public class linear_scan {
         register_begin.clear();
         register_end.clear();
         register_live_range.clear();
+        register_list.clear();
         register_inst.clear();
         function.body.get(0).tag = true;
         dfs(function.body.get(0),res);
