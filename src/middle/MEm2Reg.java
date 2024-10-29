@@ -250,7 +250,7 @@ public class MEm2Reg {
                     basic_block new_block = new basic_block("split" + add_number, block.parent, block.loop_depth);
                     new_block.instructions.add(new ir_uncond_br(new_block, successor));
                     add_number++;
-                    block.parent.body.add(block.parent.body.indexOf(block)+1, new_block);
+                    block.parent.body.add(block.parent.body.indexOf(block)+2, new_block);
                     block.successors.remove(successor);
                     block.successors.add(new_block);
                     new_block.predecessors.add(block);

@@ -1,326 +1,243 @@
-declare void @print(ptr)
-declare ptr @_string.concat(ptr, ptr)
-declare ptr @_string.copy(ptr)
-declare i32 @_string.compare(ptr, ptr)
-declare ptr @_malloc_array(i32, i32)
-declare ptr @_malloc(i32)
-declare void @println(ptr)
-declare void @printInt(i32)
-declare void @printlnInt(i32)
-declare ptr @getString()
-declare i32 @getInt()
-declare ptr @toString(i32)
-declare i32 @_string.length(ptr)
-declare ptr @_string.substring(ptr, i32, i32)
-declare i32 @_string.parseInt(ptr)
-declare i32 @_string.ord(ptr, i32)
-define i32 @main() {
-entry:
-    %_i.0 = alloca i32
-    %_j.0 = alloca i32
-    %_k.0 = alloca i32
-    %_A.0 = alloca ptr
-    %__tmp.0 = call ptr @_malloc_array(i32 4, i32 3)
-    %__tmp.1 = alloca i32
-    store i32 0, ptr %__tmp.1
-    br label %for.cond0
-for.cond0:
-    %_i.1 = load i32, ptr %__tmp.1
-    %_cond.0 = icmp slt i32 %_i.1, 3
-    br i1 %_cond.0, label %for.body0, label %for.merge0
-for.body0:
-    %__tmp.2 = getelementptr ptr, ptr %__tmp.0, i32 %_i.1
-    %__tmp.3 = call ptr @_malloc_array(i32 4, i32 4)
-    store ptr %__tmp.3, ptr %__tmp.2
-    br label %for.step0
-for.step0:
-    %__tmp.4 = add i32 %_i.1, 1
-    store i32 %__tmp.4, ptr %__tmp.1
-    br label %for.cond0
-for.merge0:
-    store ptr %__tmp.0, ptr %_A.0
-    %_B.0 = alloca ptr
-    %__tmp.5 = call ptr @_malloc_array(i32 4, i32 4)
-    %__tmp.6 = alloca i32
-    store i32 0, ptr %__tmp.6
-    br label %for.cond1
-for.cond1:
-    %_i.2 = load i32, ptr %__tmp.6
-    %_cond.1 = icmp slt i32 %_i.2, 4
-    br i1 %_cond.1, label %for.body1, label %for.merge1
-for.body1:
-    %__tmp.7 = getelementptr ptr, ptr %__tmp.5, i32 %_i.2
-    %__tmp.8 = call ptr @_malloc_array(i32 4, i32 2)
-    store ptr %__tmp.8, ptr %__tmp.7
-    br label %for.step1
-for.step1:
-    %__tmp.9 = add i32 %_i.2, 1
-    store i32 %__tmp.9, ptr %__tmp.6
-    br label %for.cond1
-for.merge1:
-    store ptr %__tmp.5, ptr %_B.0
-    %_C.0 = alloca ptr
-    %__tmp.10 = call ptr @_malloc_array(i32 4, i32 3)
-    %__tmp.11 = alloca i32
-    store i32 0, ptr %__tmp.11
-    br label %for.cond2
-for.cond2:
-    %_i.3 = load i32, ptr %__tmp.11
-    %_cond.2 = icmp slt i32 %_i.3, 3
-    br i1 %_cond.2, label %for.body2, label %for.merge2
-for.body2:
-    %__tmp.12 = getelementptr ptr, ptr %__tmp.10, i32 %_i.3
-    %__tmp.13 = call ptr @_malloc_array(i32 4, i32 2)
-    store ptr %__tmp.13, ptr %__tmp.12
-    br label %for.step2
-for.step2:
-    %__tmp.14 = add i32 %_i.3, 1
-    store i32 %__tmp.14, ptr %__tmp.11
-    br label %for.cond2
-for.merge2:
-    store ptr %__tmp.10, ptr %_C.0
-    %__tmp.15 = load i32, ptr %_i.3
-    store i32 0, ptr %_i.3
-    br label %for.cond3
-for.cond3:
-    %__tmp.16 = load i32, ptr %_i.3
-    %__tmp.17 = icmp slt i32 %__tmp.16, 3
-    br i1 %__tmp.17, label %for.body3, label %for.merge3
-for.body3:
-    %__tmp.18 = load i32, ptr %_j.0
-    store i32 0, ptr %_j.0
-    br label %for.cond4
-for.cond4:
-    %__tmp.19 = load i32, ptr %_j.0
-    %__tmp.20 = icmp slt i32 %__tmp.19, 4
-    br i1 %__tmp.20, label %for.body4, label %for.merge4
-for.body4:
-    %__tmp.21 = load ptr, ptr %_A.0
-    %__tmp.22 = load i32, ptr %_i.3
-    %__tmp.23 = getelementptr ptr, ptr %__tmp.21, i32 %__tmp.22
-    %__tmp.24 = load ptr, ptr %__tmp.23
-    %__tmp.25 = load i32, ptr %_j.0
-    %__tmp.26 = getelementptr i32, ptr %__tmp.24, i32 %__tmp.25
-    %__tmp.27 = load i32, ptr %__tmp.26
-    %__tmp.28 = load i32, ptr %_i.3
-    %__tmp.29 = load i32, ptr %_j.0
-    %__tmp.30 = add i32 %__tmp.28, %__tmp.29
-    store i32 %__tmp.30, ptr %__tmp.26
-    br label %for.step4
-for.step4:
-    %__tmp.31 = load i32, ptr %_j.0
-    %__tmp.32 = add i32 %__tmp.31, 1
-    store i32 %__tmp.32, ptr %_j.0
-    br label %for.cond4
-for.merge4:
-    br label %for.step3
-for.step3:
-    %__tmp.33 = load i32, ptr %_i.3
-    %__tmp.34 = add i32 %__tmp.33, 1
-    store i32 %__tmp.34, ptr %_i.3
-    br label %for.cond3
-for.merge3:
-    %__tmp.35 = load i32, ptr %_i.3
-    store i32 0, ptr %_i.3
-    br label %for.cond5
-for.cond5:
-    %__tmp.36 = load i32, ptr %_i.3
-    %__tmp.37 = icmp slt i32 %__tmp.36, 4
-    br i1 %__tmp.37, label %for.body5, label %for.merge5
-for.body5:
-    %__tmp.38 = load i32, ptr %_j.0
-    store i32 0, ptr %_j.0
-    br label %for.cond6
-for.cond6:
-    %__tmp.39 = load i32, ptr %_j.0
-    %__tmp.40 = icmp slt i32 %__tmp.39, 2
-    br i1 %__tmp.40, label %for.body6, label %for.merge6
-for.body6:
-    %__tmp.41 = load ptr, ptr %_B.0
-    %__tmp.42 = load i32, ptr %_i.3
-    %__tmp.43 = getelementptr ptr, ptr %__tmp.41, i32 %__tmp.42
-    %__tmp.44 = load ptr, ptr %__tmp.43
-    %__tmp.45 = load i32, ptr %_j.0
-    %__tmp.46 = getelementptr i32, ptr %__tmp.44, i32 %__tmp.45
-    %__tmp.47 = load i32, ptr %__tmp.46
-    %__tmp.48 = load i32, ptr %_i.3
-    %__tmp.49 = load i32, ptr %_j.0
-    %__tmp.50 = mul i32 %__tmp.48, %__tmp.49
-    store i32 %__tmp.50, ptr %__tmp.46
-    br label %for.step6
-for.step6:
-    %__tmp.51 = load i32, ptr %_j.0
-    %__tmp.52 = add i32 %__tmp.51, 1
-    store i32 %__tmp.52, ptr %_j.0
-    br label %for.cond6
-for.merge6:
-    br label %for.step5
-for.step5:
-    %__tmp.53 = load i32, ptr %_i.3
-    %__tmp.54 = add i32 %__tmp.53, 1
-    store i32 %__tmp.54, ptr %_i.3
-    br label %for.cond5
-for.merge5:
-    %__tmp.55 = load i32, ptr %_i.3
-    store i32 0, ptr %_i.3
-    br label %for.cond7
-for.cond7:
-    %__tmp.56 = load i32, ptr %_i.3
-    %__tmp.57 = icmp slt i32 %__tmp.56, 3
-    br i1 %__tmp.57, label %for.body7, label %for.merge7
-for.body7:
-    %__tmp.58 = load i32, ptr %_j.0
-    store i32 0, ptr %_j.0
-    br label %for.cond8
-for.cond8:
-    %__tmp.59 = load i32, ptr %_j.0
-    %__tmp.60 = icmp slt i32 %__tmp.59, 2
-    br i1 %__tmp.60, label %for.body8, label %for.merge8
-for.body8:
-    %__tmp.61 = load ptr, ptr %_C.0
-    %__tmp.62 = load i32, ptr %_i.3
-    %__tmp.63 = getelementptr ptr, ptr %__tmp.61, i32 %__tmp.62
-    %__tmp.64 = load ptr, ptr %__tmp.63
-    %__tmp.65 = load i32, ptr %_j.0
-    %__tmp.66 = getelementptr i32, ptr %__tmp.64, i32 %__tmp.65
-    %__tmp.67 = load i32, ptr %__tmp.66
-    store i32 0, ptr %__tmp.66
-    br label %for.step8
-for.step8:
-    %__tmp.68 = load i32, ptr %_j.0
-    %__tmp.69 = add i32 %__tmp.68, 1
-    store i32 %__tmp.69, ptr %_j.0
-    br label %for.cond8
-for.merge8:
-    br label %for.step7
-for.step7:
-    %__tmp.70 = load i32, ptr %_i.3
-    %__tmp.71 = add i32 %__tmp.70, 1
-    store i32 %__tmp.71, ptr %_i.3
-    br label %for.cond7
-for.merge7:
-    %__tmp.72 = load i32, ptr %_i.3
-    store i32 0, ptr %_i.3
-    br label %for.cond9
-for.cond9:
-    %__tmp.73 = load i32, ptr %_i.3
-    %__tmp.74 = icmp slt i32 %__tmp.73, 3
-    br i1 %__tmp.74, label %for.body9, label %for.merge9
-for.body9:
-    %__tmp.75 = load i32, ptr %_j.0
-    store i32 0, ptr %_j.0
-    br label %for.cond10
-for.cond10:
-    %__tmp.76 = load i32, ptr %_j.0
-    %__tmp.77 = icmp slt i32 %__tmp.76, 2
-    br i1 %__tmp.77, label %for.body10, label %for.merge10
-for.body10:
-    %__tmp.78 = load i32, ptr %_k.0
-    store i32 0, ptr %_k.0
-    br label %for.cond11
-for.cond11:
-    %__tmp.79 = load i32, ptr %_k.0
-    %__tmp.80 = icmp slt i32 %__tmp.79, 4
-    br i1 %__tmp.80, label %for.body11, label %for.merge11
-for.body11:
-    %__tmp.81 = load ptr, ptr %_C.0
-    %__tmp.82 = load i32, ptr %_i.3
-    %__tmp.83 = getelementptr ptr, ptr %__tmp.81, i32 %__tmp.82
-    %__tmp.84 = load ptr, ptr %__tmp.83
-    %__tmp.85 = load i32, ptr %_j.0
-    %__tmp.86 = getelementptr i32, ptr %__tmp.84, i32 %__tmp.85
-    %__tmp.87 = load i32, ptr %__tmp.86
-    %__tmp.88 = load ptr, ptr %_C.0
-    %__tmp.89 = load i32, ptr %_i.3
-    %__tmp.90 = getelementptr ptr, ptr %__tmp.88, i32 %__tmp.89
-    %__tmp.91 = load ptr, ptr %__tmp.90
-    %__tmp.92 = load i32, ptr %_j.0
-    %__tmp.93 = getelementptr i32, ptr %__tmp.91, i32 %__tmp.92
-    %__tmp.94 = load i32, ptr %__tmp.93
-    %__tmp.95 = load ptr, ptr %_A.0
-    %__tmp.96 = load i32, ptr %_i.3
-    %__tmp.97 = getelementptr ptr, ptr %__tmp.95, i32 %__tmp.96
-    %__tmp.98 = load ptr, ptr %__tmp.97
-    %__tmp.99 = load i32, ptr %_k.0
-    %__tmp.100 = getelementptr i32, ptr %__tmp.98, i32 %__tmp.99
-    %__tmp.101 = load i32, ptr %__tmp.100
-    %__tmp.102 = load ptr, ptr %_B.0
-    %__tmp.103 = load i32, ptr %_k.0
-    %__tmp.104 = getelementptr ptr, ptr %__tmp.102, i32 %__tmp.103
-    %__tmp.105 = load ptr, ptr %__tmp.104
-    %__tmp.106 = load i32, ptr %_j.0
-    %__tmp.107 = getelementptr i32, ptr %__tmp.105, i32 %__tmp.106
-    %__tmp.108 = load i32, ptr %__tmp.107
-    %__tmp.109 = mul i32 %__tmp.101, %__tmp.108
-    %__tmp.110 = add i32 %__tmp.94, %__tmp.109
-    store i32 %__tmp.110, ptr %__tmp.86
-    br label %for.step11
-for.step11:
-    %__tmp.111 = load i32, ptr %_k.0
-    %__tmp.112 = add i32 %__tmp.111, 1
-    store i32 %__tmp.112, ptr %_k.0
-    br label %for.cond11
-for.merge11:
-    br label %for.step10
-for.step10:
-    %__tmp.113 = load i32, ptr %_j.0
-    %__tmp.114 = add i32 %__tmp.113, 1
-    store i32 %__tmp.114, ptr %_j.0
-    br label %for.cond10
-for.merge10:
-    br label %for.step9
-for.step9:
-    %__tmp.115 = load i32, ptr %_i.3
-    %__tmp.116 = add i32 %__tmp.115, 1
-    store i32 %__tmp.116, ptr %_i.3
-    br label %for.cond9
-for.merge9:
-    %_ans.0 = alloca i32
-    store i32 0, ptr %_ans.0
-    %__tmp.117 = load i32, ptr %_i.3
-    store i32 0, ptr %_i.3
-    br label %for.cond12
-for.cond12:
-    %__tmp.118 = load i32, ptr %_i.3
-    %__tmp.119 = icmp slt i32 %__tmp.118, 3
-    br i1 %__tmp.119, label %for.body12, label %for.merge12
-for.body12:
-    %__tmp.120 = load i32, ptr %_j.0
-    store i32 0, ptr %_j.0
-    br label %for.cond13
-for.cond13:
-    %__tmp.121 = load i32, ptr %_j.0
-    %__tmp.122 = icmp slt i32 %__tmp.121, 2
-    br i1 %__tmp.122, label %for.body13, label %for.merge13
-for.body13:
-    %__tmp.123 = load i32, ptr %_ans.0
-    %__tmp.124 = load i32, ptr %_ans.0
-    %__tmp.125 = load ptr, ptr %_C.0
-    %__tmp.126 = load i32, ptr %_i.3
-    %__tmp.127 = getelementptr ptr, ptr %__tmp.125, i32 %__tmp.126
-    %__tmp.128 = load ptr, ptr %__tmp.127
-    %__tmp.129 = load i32, ptr %_j.0
-    %__tmp.130 = getelementptr i32, ptr %__tmp.128, i32 %__tmp.129
-    %__tmp.131 = load i32, ptr %__tmp.130
-    %__tmp.132 = add i32 %__tmp.124, %__tmp.131
-    store i32 %__tmp.132, ptr %_ans.0
-    br label %for.step13
-for.step13:
-    %__tmp.133 = load i32, ptr %_j.0
-    %__tmp.134 = add i32 %__tmp.133, 1
-    store i32 %__tmp.134, ptr %_j.0
-    br label %for.cond13
-for.merge13:
-    br label %for.step12
-for.step12:
-    %__tmp.135 = load i32, ptr %_i.3
-    %__tmp.136 = add i32 %__tmp.135, 1
-    store i32 %__tmp.136, ptr %_i.3
-    br label %for.cond12
-for.merge12:
-    %__tmp.138 = load i32, ptr %_ans.0
-    %__tmp.137 = call ptr @toString(i32 %__tmp.138)
-    call void @print(ptr %__tmp.137)
-    ret i32 0
-}
-
+main:
+      addi    sp, sp, 0
+main_entry:
+      # %_0 = load i32, ptr @n
+      la      vr1, n
+      lw      vr0, 0(vr1)
+      # %_1 = call i32 @getInt()
+      sw      ra, 0(sp)
+      call    getInt
+      mv      vr2, a0
+      lw      ra, 0(sp)
+      # store i32 %_1, ptr @n
+      la      vr3, n
+      sw      vr2, 0(vr3)
+      # %_2 = load i32, ptr @p
+      la      vr5, p
+      lw      vr4, 0(vr5)
+      # %_3 = call i32 @getInt()
+      sw      ra, 4(sp)
+      call    getInt
+      mv      vr6, a0
+      lw      ra, 4(sp)
+      # store i32 %_3, ptr @p
+      la      vr7, p
+      sw      vr6, 0(vr7)
+      # %_4 = load i32, ptr @k
+      la      vr9, k
+      lw      vr8, 0(vr9)
+      # %_5 = call i32 @getInt()
+      sw      ra, 8(sp)
+      call    getInt
+      mv      vr10, a0
+      lw      ra, 8(sp)
+      # store i32 %_5, ptr @k
+      la      vr11, k
+      sw      vr10, 0(vr11)
+      # %_6 = load i32, ptr @p
+      la      vr13, p
+      lw      vr12, 0(vr13)
+      # %_7 = load i32, ptr @k
+      la      vr15, k
+      lw      vr14, 0(vr15)
+      # %_8 = sub i32 %_6, %_7
+      sub     vr16, vr12, vr14
+      # %_9 = icmp sgt i32 %_8, 1
+      li      vr17, 1
+      sub     vr18, vr16, vr17
+      sgtz    vr19, vr18
+      mv      vr20, vr19
+      # br i1 %_9, label %if.then.0, label %if.end.0
+      beqz     vr20, main_if.end.0
+main_if.then.0:
+      # call void @print(ptr @string.0)
+      la      vr21, string.0
+      mv      a0, vr21
+      sw      ra, 12(sp)
+      call    print
+      lw      ra, 12(sp)
+      # br label %if.end.0
+      j       main_if.end.0
+main_if.end.0:
+      # %_10 = load i32, ptr @i
+      la      vr23, i
+      lw      vr22, 0(vr23)
+      # %_11 = load i32, ptr @p
+      la      vr25, p
+      lw      vr24, 0(vr25)
+      # %_12 = load i32, ptr @k
+      la      vr27, k
+      lw      vr26, 0(vr27)
+      # %_13 = sub i32 %_11, %_12
+      sub     vr28, vr24, vr26
+      # store i32 %_13, ptr @i
+      la      vr29, i
+      sw      vr28, 0(vr29)
+      # br label %for.cond.0
+      j       main_for.cond.0
+main_for.cond.0:
+      # %_14 = load i32, ptr @i
+      la      vr31, i
+      lw      vr30, 0(vr31)
+      # %_15 = load i32, ptr @p
+      la      vr33, p
+      lw      vr32, 0(vr33)
+      # %_16 = load i32, ptr @k
+      la      vr35, k
+      lw      vr34, 0(vr35)
+      # %_17 = add i32 %_15, %_16
+      add     vr36, vr32, vr34
+      # %_18 = icmp sle i32 %_14, %_17
+      sub     vr37, vr30, vr36
+      sltz    vr38, vr37
+      seqz    vr39, vr37
+      or      vr40, vr38, vr39
+      mv      vr41, vr40
+      # br i1 %_18, label %for.body.0, label %for.end.0
+      beqz     vr41, main_for.end.0
+main_for.body.0:
+      # %_19 = load i32, ptr @i
+      la      vr43, i
+      lw      vr42, 0(vr43)
+      # %_20 = icmp sle i32 1, %_19
+      li      vr44, 1
+      sub     vr45, vr44, vr42
+      sltz    vr46, vr45
+      seqz    vr47, vr45
+      or      vr48, vr46, vr47
+      mv      vr49, vr48
+      # br i1 %_20, label %if.then.1, label %if.else.1
+      beqz     vr49, main_if.else.1
+main_if.then.1:
+      # %_21 = load i32, ptr @i
+      la      vr51, i
+      lw      vr50, 0(vr51)
+      # %_22 = load i32, ptr @n
+      la      vr53, n
+      lw      vr52, 0(vr53)
+      # %_23 = icmp sle i32 %_21, %_22
+      sub     vr54, vr50, vr52
+      sltz    vr55, vr54
+      seqz    vr56, vr54
+      or      vr57, vr55, vr56
+      mv      vr58, vr57
+      # br label %if.end.1
+      mv      vr59, vr58
+      j       main_if.end.1
+main_if.else.1:
+      # br label %if.end.1
+      mv      vr59, vr49
+      j       main_if.end.1
+main_if.end.1:
+      # br i1 %_24, label %if.then.2, label %if.end.2
+      beqz     vr59, main_if.end.2
+main_if.then.2:
+      # %_25 = load i32, ptr @i
+      la      vr61, i
+      lw      vr60, 0(vr61)
+      # %_26 = load i32, ptr @p
+      la      vr63, p
+      lw      vr62, 0(vr63)
+      # %_27 = icmp eq i32 %_25, %_26
+      sub     vr64, vr60, vr62
+      seqz    vr65, vr64
+      mv      vr66, vr65
+      # br i1 %_27, label %if.then.3, label %if.else.3
+      beqz     vr66, main_if.else.3
+main_if.then.3:
+      # call void @print(ptr @string.1)
+      la      vr67, string.1
+      mv      a0, vr67
+      sw      ra, 16(sp)
+      call    print
+      lw      ra, 16(sp)
+      # %_29 = load i32, ptr @i
+      la      vr69, i
+      lw      vr68, 0(vr69)
+      # %_28 = call ptr @toString(i32 %_29)
+      mv      a0, vr68
+      sw      ra, 20(sp)
+      call    toString
+      mv      vr70, a0
+      lw      ra, 20(sp)
+      # call void @print(ptr %_28)
+      mv      a0, vr70
+      sw      ra, 24(sp)
+      call    print
+      lw      ra, 24(sp)
+      # call void @print(ptr @string.2)
+      la      vr71, string.2
+      mv      a0, vr71
+      sw      ra, 28(sp)
+      call    print
+      lw      ra, 28(sp)
+      # br label %if.end.3
+      j       main_if.end.3
+main_if.else.3:
+      # %_30 = load i32, ptr @i
+      la      vr73, i
+      lw      vr72, 0(vr73)
+      # call void @printInt(i32 %_30)
+      mv      a0, vr72
+      sw      ra, 32(sp)
+      call    printInt
+      lw      ra, 32(sp)
+      # call void @print(ptr @string.3)
+      la      vr74, string.3
+      mv      a0, vr74
+      sw      ra, 36(sp)
+      call    print
+      lw      ra, 36(sp)
+      # br label %if.end.3
+      j       main_if.end.3
+main_if.end.3:
+      # br label %if.end.2
+      j       main_if.end.2
+main_if.end.2:
+      # br label %for.step.0
+      j       main_for.step.0
+main_for.step.0:
+      # %_31 = load i32, ptr @i
+      la      vr76, i
+      lw      vr75, 0(vr76)
+      # %_32 = add i32 %_31, 1
+      li      vr78, 1
+      add     vr77, vr75, vr78
+      # store i32 %_32, ptr @i
+      la      vr79, i
+      sw      vr77, 0(vr79)
+      # br label %for.cond.0
+      j       main_for.cond.0
+main_for.end.0:
+      # %_33 = load i32, ptr @p
+      la      vr81, p
+      lw      vr80, 0(vr81)
+      # %_34 = load i32, ptr @k
+      la      vr83, k
+      lw      vr82, 0(vr83)
+      # %_35 = add i32 %_33, %_34
+      add     vr84, vr80, vr82
+      # %_36 = load i32, ptr @n
+      la      vr86, n
+      lw      vr85, 0(vr86)
+      # %_37 = icmp slt i32 %_35, %_36
+      sub     vr87, vr84, vr85
+      sltz    vr88, vr87
+      mv      vr89, vr88
+      # br i1 %_37, label %if.then.4, label %if.end.4
+      beqz     vr89, main_if.end.4
+main_if.then.4:
+      # call void @print(ptr @string.4)
+      la      vr90, string.4
+      mv      a0, vr90
+      sw      ra, 40(sp)
+      call    print
+      lw      ra, 40(sp)
+      # br label %if.end.4
+      j       main_if.end.4
+main_if.end.4:
+      # ret i32 0
+      li      vr91, 0
+      mv      a0, vr91
+      addi    sp, sp, 0
+      ret
