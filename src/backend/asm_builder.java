@@ -204,11 +204,11 @@ public class asm_builder implements IR_visitor {
             int index = return_inst.parent.instructions.indexOf(return_inst);
 
             var back = new asm_arithimm_instruction(current_block, sp, sp, "+", new imm(0));
+            back.need_final_imm = true;
+            current_block.instructions.add(index, back);
             if (!node.name.equals("main")) {
                 caller_end(index);
             }
-            back.need_final_imm = true;
-            current_block.instructions.add(index, back);
 
 //            var back = new asm_arithimm_instruction(current_block, sp, sp, "+", new imm(current_function.stack_size));
 //            current_block.instructions.add(index,back);

@@ -47,6 +47,10 @@ public class linear_scan {
 
     public ArrayList<asm_block> sort_function(asm_function function){
         ArrayList<asm_block> res = new ArrayList<>();
+        register_begin.clear();
+        register_end.clear();
+        register_live_range.clear();
+        register_inst.clear();
         function.body.get(0).tag = true;
         dfs(function.body.get(0),res);
         ArrayList<asm_block> tmp = new ArrayList<>();
@@ -68,13 +72,13 @@ public class linear_scan {
             }
         }
         for(var block : res){
-//            if(block.label.equals("jud_for.body1")){
+//            if(block.label.equals("main")){
 //                int i = 0;
 //            }
             for(var inst : block.instructions){
-                if(inst.index == 32){
-                    int j = 0;
-                }
+//                if(inst.index == 32){
+//                    int j = 0;
+//                }
                 if(inst.def() != null && inst.def() instanceof virtual_register){
                     if(!register_begin.containsKey(inst.def())){
                         register_begin.put(inst.def(),inst.index);
@@ -157,8 +161,13 @@ public class linear_scan {
         register_list.sort((a,b)->register_begin.get(a)-register_begin.get(b));
         ArrayList<register> queue = new ArrayList<>();
         PriorityQueue<register> pq = new PriorityQueue<>((a,b)->register_end.get(a)-register_end.get(b));
+
         for(int i = 0 ; i < 17 ; ++i){
             queue.add(null);
+        }
+
+        if(function.label.equals("main")){
+            int i = 0;
         }
         for(var reg : register_list){
             while(!pq.isEmpty() && register_end.get(pq.peek()) < register_begin.get(reg)){
