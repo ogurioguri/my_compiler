@@ -195,17 +195,18 @@ public class MEm2Reg {
         HashMap<String, Integer> size_ =  new HashMap<>();
         for (var successor : block.successors) {
             for (var phi : successor.phi_map.values()) {
-                if (original_name.get(phi.result) == null ||  value_stack.get(original_name.get(phi.result)).isEmpty()) {
-                    ir_literal tmp = new ir_literal("0", ptr_type.get(phi.result));
-                    if (phi.result.type.is_pointer) {
-                        tmp = new ir_literal("null", ptr_type.get(phi.result));
+                if(original_name.get(phi.result) != null){
+                    if (value_stack.get(original_name.get(phi.result)).isEmpty()) {
+                        ir_literal tmp = new ir_literal("0", ptr_type.get(phi.result));
+                        if (phi.result.type.is_pointer) {
+                            tmp = new ir_literal("null", ptr_type.get(phi.result));
+                        }
+                        phi.block_map.put(block, tmp);
+                    } else {
+                        var value = value_stack.get(original_name.get(phi.result)).peek();
+                        phi.block_map.put(block, value_stack.get(original_name.get(phi.result)).peek());
                     }
-                    phi.block_map.put(block, tmp);
-                } else {
-                    var value = value_stack.get(original_name.get(phi.result)).peek();
-                    phi.block_map.put(block, value_stack.get(original_name.get(phi.result)).peek());
                 }
-
             }
         }
         for(var entity : value_stack.keySet()){
@@ -250,7 +251,7 @@ public class MEm2Reg {
                     basic_block new_block = new basic_block("split" + add_number, block.parent, block.loop_depth);
                     new_block.instructions.add(new ir_uncond_br(new_block, successor));
                     add_number++;
-                    block.parent.body.add(block.parent.body.indexOf(block)+2, new_block);
+                    block.parent.body.add(block.parent.body.indexOf(successor), new_block);
                     block.successors.remove(successor);
                     block.successors.add(new_block);
                     new_block.predecessors.add(block);
