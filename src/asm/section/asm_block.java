@@ -16,7 +16,10 @@ public class asm_block extends asm_section{
     public HashSet<register> out = null;
     public ArrayList<asm_block> successors = null;
     public HashSet<asm_block> predecessors = null;
-    public boolean tag = false;
+    public boolean tag = false; // for index
+    public boolean visited = false; // for liveness analysis
+    public boolean visiting = false; // for liveness analysis
+    public boolean stop = false;
 
     public asm_block(asm_block other){
         super(other.label);

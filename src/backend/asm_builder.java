@@ -154,7 +154,7 @@ public class asm_builder implements IR_visitor {
         current_block = program.add_function(node.name);
         var start_block = current_block;
         current_function = current_block.parent;
-        if (!node.name.equals("main")) {
+        if (!node.name.equals("main") && !node.name.equals("__init")) {
             caller_begin();
         }
         for (int i = 0; i < node.parameters.size(); ++i) {
@@ -206,7 +206,7 @@ public class asm_builder implements IR_visitor {
             var back = new asm_arithimm_instruction(current_block, sp, sp, "+", new imm(0));
             back.need_final_imm = true;
             current_block.instructions.add(index, back);
-            if (!node.name.equals("main")) {
+            if (!node.name.equals("main") && !node.name.equals("__init")) {
                 caller_end(index);
             }
 

@@ -7,6 +7,7 @@ import asm.ingredient.*;
 public abstract class asm_instruction {
   public asm_block parent;
   public int index = 0;
+  public int second_index = 0;
   public int add_stack = 0;
   public boolean need_imm = false; // it means that the instruction needs an stack_size to refresh the stack pointer
   public boolean need_final_imm = false; // it means that the instruction needs a final stack_size to refresh the stack pointer

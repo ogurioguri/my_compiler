@@ -31,17 +31,30 @@ public class linear_scan {
     }
 
     public void dfs(asm_block block,ArrayList<asm_block> res){
-        if(res.contains(block)){
-            return;
-        }
+        block.tag = true;
+        block.visiting = true;
         for(int i = block.successors.size()-1 ; i >=0 ; --i){
             var son = block.successors.get(i);
             if(son.tag){
-                continue;
+                if(son.visiting){
+                    var now = son;
+                    while(now != block){
+                        res.add(now);
+                        int k;
+                        for(k = 0 ; k < now.successors.size() ; ++k){
+                            if(now.successors.get(k).visiting){
+                                break;
+                            }
+                        }
+                        now = now.successors.get(k);
+                    }
+                }
             }
-            son.tag = true;
-            dfs(son,res);
+            else{
+                dfs(son,res);
+            }
         }
+        block.visiting = false;
         res.add(block);
     }
 
@@ -65,17 +78,27 @@ public class linear_scan {
 
 
     public void give_index_block(ArrayList<asm_block> res) {
-        int index = 0;
+        int index = 1;
         for(var block : res){
             for(var inst : block.instructions){
-                inst.index = index;
-                index++;
+                if(inst.index != 0){
+                    inst.second_index = index;
+                    index++;
+                }
+                else{
+                    inst.index = index;
+                    index++;
+                }
             }
         }
         for(var block : res){
+            if(block.visited){
+                continue;
+            }
 //            if(block.label.equals("main")){
 //                int i = 0;
 //            }
+            HashSet<register> def_register = new HashSet<>();
             for(var inst : block.instructions){
 //                if(inst.index == 32){
 //                    int j = 0;
@@ -83,37 +106,49 @@ public class linear_scan {
                 if(inst.def() != null && inst.def() instanceof virtual_register){
                     if(!register_begin.containsKey(inst.def())){
                         register_begin.put(inst.def(),inst.index);
+                        def_register.add(inst.def());
                     }
                 }
                 if(inst.use1() != null && inst.use1() instanceof virtual_register reg){
                     if((register_begin.containsKey(reg) ) || block.out.contains(inst.use1())){
-                        register_end.put(reg,inst.index);
+                        if(inst.second_index != 0 && !def_register.contains(reg)){
+                            register_end.put(reg,inst.second_index);
+                        }
+                        else{
+                            register_end.put(reg,inst.index);
+                        }
                     }
                 }
                 if(inst.use2() != null && inst.use2() instanceof virtual_register reg){
                     if((register_begin.containsKey(reg) ) || block.out.contains(inst.use2())){
-                        register_end.put(reg,inst.index);
+                        if(inst.second_index != 0 && !def_register.contains(reg)){
+                            register_end.put(reg,inst.second_index);
+                        }
+                        else{
+                            register_end.put(reg,inst.index);
+                        }
                     }
                 }
+                block.visited = true;
                 //recode the instruction of each register
-                if(inst.def()!= null){
-                    if(!register_live_range.containsKey(inst.def())){
-                        register_live_range.put(inst.def(),new ArrayList<>());
-                    }
-                    register_live_range.get(inst.def()).add(inst.index);
-                }
-                if(inst.use1()!= null){
-                    if(!register_live_range.containsKey(inst.use1())){
-                        register_live_range.put(inst.use1(),new ArrayList<>());
-                    }
-                    register_live_range.get(inst.use1()).add(inst.index);
-                }
-                if(inst.use2()!= null){
-                    if(!register_live_range.containsKey(inst.use2())){
-                        register_live_range.put(inst.use2(),new ArrayList<>());
-                    }
-                    register_live_range.get(inst.use2()).add(inst.index);
-                }
+//                if(inst.def()!= null){
+//                    if(!register_live_range.containsKey(inst.def())){
+//                        register_live_range.put(inst.def(),new ArrayList<>());
+//                    }
+//                    register_live_range.get(inst.def()).add(inst.index);
+//                }
+//                if(inst.use1()!= null){
+//                    if(!register_live_range.containsKey(inst.use1())){
+//                        register_live_range.put(inst.use1(),new ArrayList<>());
+//                    }
+//                    register_live_range.get(inst.use1()).add(inst.index);
+//                }
+//                if(inst.use2()!= null){
+//                    if(!register_live_range.containsKey(inst.use2())){
+//                        register_live_range.put(inst.use2(),new ArrayList<>());
+//                    }
+//                    register_live_range.get(inst.use2()).add(inst.index);
+//                }
             }
         }
     }
