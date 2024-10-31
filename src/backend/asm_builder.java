@@ -5,6 +5,7 @@ import asm.ingredient.*;
 import asm.instruction.*;
 import asm.section.*;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import IR.instruction.*;
@@ -13,6 +14,7 @@ import IR.type.*;
 import IR.node.*;
 import IR.entity.*;
 
+import javax.crypto.MacSpi;
 import java.util.HashMap;
 
 
@@ -33,7 +35,7 @@ public class asm_builder implements IR_visitor {
 
     public void caller_begin() {
         current_block.add_instruction(new asm_comment(current_block, "caller"));
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < 12; ++i) {
             var inst = new asm_sw_instruction(current_block, s_registers[i], new memory_address(sp, new imm(4 * i)));
             inst.add_stack = 4;
             current_block.add_instruction(inst);
@@ -42,7 +44,7 @@ public class asm_builder implements IR_visitor {
 
     public void caller_end(int index) {
         current_block.add_instruction(new asm_comment(current_block, "caller"));
-        for (int i = 9; i >=0; --i) {
+        for (int i = 11; i >=0; --i) {
             var inst = new asm_lw_instruction(current_block, s_registers[i], new memory_address(sp, new imm(4 * i)));
             current_block.instructions.add(index,inst);
         }
@@ -177,12 +179,42 @@ public class asm_builder implements IR_visitor {
         for (var bb : node.body) {
             bb.accept(this);
         }
-        //cope with the phi instructions
-        for (var block : node.body) {
-            for (var phi : block.phi_map.values()) {
-                phi.accept(this);
+
+        for(var block : node.body){
+            for(var inst : block.phi_map.values()){
+                inst.accept(this);
             }
         }
+        //cope with the phi instructions
+        for (var block : current_function.body) {
+            ArrayList<asm_instruction> copy = new ArrayList<>(block.phi_mov);
+            HashMap<register,register> mapping = new HashMap<>();
+            block.phi_mov.clear();
+            for(var inst : copy){
+                var tmp = new virtual_register();
+                mapping.put(((asm_mv_instrcution)inst).rd,tmp);
+                block.phi_mov.add(new asm_mv_instrcution(block,tmp,((asm_mv_instrcution)inst).rs1));
+            }
+            for(var key : mapping.keySet()){
+                block.phi_mov.add(new asm_mv_instrcution(block,key,mapping.get(key)));
+            }
+            current_block = block;
+            if(!current_block.instructions.isEmpty()){
+                var exitInst = current_block.instructions.get(current_block.instructions.size() - 1);
+                if (exitInst instanceof asm_br_instruction || exitInst instanceof asm_jump_instruction || exitInst instanceof asm_return_instruction)
+                    current_block.instructions.remove(exitInst);
+                for(var inst : block.phi_mov)
+                    current_block.add_instruction(inst);
+                if (exitInst instanceof asm_br_instruction || exitInst instanceof asm_jump_instruction || exitInst instanceof asm_return_instruction)
+                    current_block.add_instruction(exitInst);
+            }
+            else{
+                for(var inst : block.phi_mov)
+                    current_block.add_instruction(inst);
+            }
+
+        }
+
 
         current_block = start_block;
         var move_sp_inst = new asm_arithimm_instruction(current_block, sp, sp, "+", new imm(0));
@@ -199,16 +231,31 @@ public class asm_builder implements IR_visitor {
 //        }
 
         //restore the return address
+        asm_block return_block = new asm_block(node.name + "_return", current_function);
+        String return_name = node.name + "_return";
+        current_block = return_block;
+        current_function.body.add(return_block);
+        var back = new asm_arithimm_instruction(current_block, sp, sp, "+", new imm(0));
+        back.need_final_imm = true;
+        current_block.instructions.add(back);
+        if (!node.name.equals("main") && !node.name.equals("__init")) {
+            caller_end(0);
+        }
+        current_block.add_instruction(new asm_return_instruction(current_block));
+
         for (var return_inst : return_instructions) {
             current_block = return_inst.parent;
             int index = return_inst.parent.instructions.indexOf(return_inst);
 
-            var back = new asm_arithimm_instruction(current_block, sp, sp, "+", new imm(0));
-            back.need_final_imm = true;
-            current_block.instructions.add(index, back);
-            if (!node.name.equals("main") && !node.name.equals("__init")) {
-                caller_end(index);
-            }
+//            var back = new asm_arithimm_instruction(current_block, sp, sp, "+", new imm(0));
+//            back.need_final_imm = true;
+//            current_block.instructions.add(index, back);
+//            if (!node.name.equals("main") && !node.name.equals("__init")) {
+//                caller_end(index);
+//            }
+            current_block.instructions.remove(index);
+            var jump = new asm_jump_instruction(current_block, return_name);
+            current_block.instructions.add(jump);
 
 //            var back = new asm_arithimm_instruction(current_block, sp, sp, "+", new imm(current_function.stack_size));
 //            current_block.instructions.add(index,back);
@@ -261,18 +308,6 @@ public class asm_builder implements IR_visitor {
         inst.add_stack = 4;
         inst.need_imm = true;
         current_block.add_instruction(inst);
-        inst = new asm_sw_instruction(current_block, t0, new memory_address(sp, new imm(0)));
-        inst.add_stack = 4;
-        inst.need_imm = true;
-        current_block.add_instruction(inst);
-        inst = new asm_sw_instruction(current_block, t1, new memory_address(sp, new imm(0)));
-        inst.add_stack = 4;
-        inst.need_imm = true;
-        current_block.add_instruction(inst);
-        inst = new asm_sw_instruction(current_block, t2, new memory_address(sp, new imm(0)));
-        inst.add_stack = 4;
-        inst.need_imm = true;
-        current_block.add_instruction(inst);
         inst = new asm_sw_instruction(current_block, t3, new memory_address(sp, new imm(0)));
         inst.add_stack = 4;
         inst.need_imm = true;
@@ -292,19 +327,7 @@ public class asm_builder implements IR_visitor {
     }
 
     public void callee_end() {
-        var inst = new asm_lw_instruction(current_block, ra, new memory_address(sp, new imm(-32)));
-        inst.save_address_index = save_index;
-        inst.need_imm = true;
-        current_block.add_instruction(inst);
-        inst = new asm_lw_instruction(current_block, t0, new memory_address(sp, new imm(-28)));
-        inst.save_address_index = save_index;
-        inst.need_imm = true;
-        current_block.add_instruction(inst);
-        inst = new asm_lw_instruction(current_block, t1, new memory_address(sp, new imm(-24)));
-        inst.save_address_index = save_index;
-        inst.need_imm = true;
-        current_block.add_instruction(inst);
-        inst = new asm_lw_instruction(current_block, t2, new memory_address(sp, new imm(-20)));
+        var inst = new asm_lw_instruction(current_block, ra, new memory_address(sp, new imm(-20)));
         inst.save_address_index = save_index;
         inst.need_imm = true;
         current_block.add_instruction(inst);
@@ -323,6 +346,7 @@ public class asm_builder implements IR_visitor {
         inst = new asm_lw_instruction(current_block, real_register.get_reg("t6"), new memory_address(sp, new imm(-4)));
         inst.save_address_index = save_index;
         inst.need_imm = true;
+        inst.add_stack = -20;
         current_block.add_instruction(inst);
     }
 
@@ -516,13 +540,14 @@ public class asm_builder implements IR_visitor {
         var result = get_register(ins.result);
         var block_ = current_block;
         // System.err.println("InstSelection.visit(IRPhiInst): " + inst.toString());
+        HashMap<asm_block,ArrayList<asm_instruction>> array;
         for (var block : ins.block_map.keySet()) {
             current_block = block_map.get(block.label);
             var exitInst = current_block.instructions.get(current_block.instructions.size() - 1);
             if (exitInst instanceof asm_br_instruction || exitInst instanceof asm_jump_instruction || exitInst instanceof asm_return_instruction)
                 current_block.instructions.remove(exitInst);
             var key = get_register(ins.block_map.get(block));
-            current_block.add_instruction(new asm_mv_instrcution(current_block, result, key));
+            current_block.phi_mov.add(new asm_mv_instrcution(current_block, result, key));
             if (exitInst instanceof asm_br_instruction || exitInst instanceof asm_jump_instruction || exitInst instanceof asm_return_instruction)
                 current_block.add_instruction(exitInst);
         }

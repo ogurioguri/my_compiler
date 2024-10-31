@@ -7,7 +7,7 @@ import asm.ingredient.*;
 
 public class asm_arithimm_instruction extends asm_instruction{
     public register rd = null;
-    public register rs1 = null, rs2 = null;
+    public register rs1 = null;
     String op;
     public imm immediate = null;
 
@@ -38,16 +38,10 @@ public class asm_arithimm_instruction extends asm_instruction{
     public register use1() {
         return rs1;
     }
-    public register use2() {
-        return rs2;
-    }
     public void setDef(register reg) {
         rd = reg;
     }
     public void setUse1(register reg) {
         rs1 = reg;
-    }
-    public void setUse2(register reg) {
-        rs2 = reg;
     }
 }

@@ -14,6 +14,9 @@ public class live_analyse {
             node.successors.add(node.parent.body.get(1));
             node.parent.body.get(1).predecessors.add(node);
         } else {
+            if(node.ir_block == null){
+                return;
+            }
             for(var tmp : node.ir_block.predecessors) {
                 node.predecessors.add(tmp.first_block);
             }

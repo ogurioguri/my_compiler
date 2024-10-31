@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.PriorityQueue;
 
+import static java.lang.Math.max;
+
 public class linear_scan {
     public asm_program program;
     public dead_code_elimination dce = new dead_code_elimination();
@@ -20,8 +22,8 @@ public class linear_scan {
     public ArrayList<register> register_list = new ArrayList<>();
     public HashMap<register,register> register_map = new HashMap<>();
     public HashSet<register>register_spill = new HashSet<>();
-    public boolean busy_s10 = false;
-    public boolean busy_s11 = false;
+    public boolean busy_t0 =  false;
+    public boolean busy_t1 = false;
 
 
 
@@ -33,13 +35,14 @@ public class linear_scan {
     public void dfs(asm_block block,ArrayList<asm_block> res){
         block.tag = true;
         block.visiting = true;
-        for(int i = block.successors.size()-1 ; i >=0 ; --i){
+        for(int i = 0 ; i < block.successors.size() ; ++i){
             var son = block.successors.get(i);
             if(son.tag){
                 if(son.visiting){
+                    ArrayList<asm_block> array = new ArrayList<>();
                     var now = son;
                     while(now != block){
-                        res.add(now);
+                        array.add(now);
                         int k;
                         for(k = 0 ; k < now.successors.size() ; ++k){
                             if(now.successors.get(k).visiting){
@@ -47,6 +50,9 @@ public class linear_scan {
                             }
                         }
                         now = now.successors.get(k);
+                    }
+                    for(int j = array.size() -1 ; j >=0 ; --j) {
+                        res.add(array.get(j));
                     }
                 }
             }
@@ -100,9 +106,9 @@ public class linear_scan {
 //            }
             HashSet<register> def_register = new HashSet<>();
             for(var inst : block.instructions){
-//                if(inst.index == 32){
-//                    int j = 0;
-//                }
+                if(inst.second_index == 51){
+                    int j = 0;
+                }
                 if(inst.def() != null && inst.def() instanceof virtual_register){
                     if(!register_begin.containsKey(inst.def())){
                         register_begin.put(inst.def(),inst.index);
@@ -112,20 +118,40 @@ public class linear_scan {
                 if(inst.use1() != null && inst.use1() instanceof virtual_register reg){
                     if((register_begin.containsKey(reg) ) || block.out.contains(inst.use1())){
                         if(inst.second_index != 0 && !def_register.contains(reg)){
-                            register_end.put(reg,inst.second_index);
+                            if(register_end.containsKey(reg)){
+                                register_end.put(reg,max(register_end.get(reg),inst.second_index));
+                            }
+                            else{
+                                register_end.put(reg,inst.second_index);
+                            }
                         }
                         else{
-                            register_end.put(reg,inst.index);
+                            if(register_end.containsKey(reg)){
+                                register_end.put(reg,max(register_end.get(reg),inst.index));
+                            }
+                            else{
+                                register_end.put(reg,inst.index);
+                            }
                         }
                     }
                 }
                 if(inst.use2() != null && inst.use2() instanceof virtual_register reg){
                     if((register_begin.containsKey(reg) ) || block.out.contains(inst.use2())){
                         if(inst.second_index != 0 && !def_register.contains(reg)){
-                            register_end.put(reg,inst.second_index);
+                            if(register_end.containsKey(reg)){
+                                register_end.put(reg,max(register_end.get(reg),inst.second_index));
+                            }
+                            else{
+                                register_end.put(reg,inst.second_index);
+                            }
                         }
                         else{
-                            register_end.put(reg,inst.index);
+                            if(register_end.containsKey(reg)){
+                                register_end.put(reg,max(register_end.get(reg),inst.index));
+                            }
+                            else{
+                                register_end.put(reg,inst.index);
+                            }
                         }
                     }
                 }
@@ -154,7 +180,7 @@ public class linear_scan {
     }
 
     public int get_spare(ArrayList<register> queue){
-        for(int i = 0; i < 17 ; ++i){
+        for(int i = 0; i < 16 ; ++i){
             if(queue.get(i) == null){
                 return i;
             }
@@ -178,11 +204,11 @@ public class linear_scan {
 
     //s10 and s11 are used to store the parameter
     public real_register transfer(int index){
-        if(index >=0 && index < 7){
-            return real_register.get_reg("t" + index);
+        if(index >=0 && index < 4){
+            return real_register.get_reg("t" + (index+3));
         }
-        else if(index >= 7 && index < 17){
-            return real_register.get_reg("s" + (index-7));
+        else if(index >= 4 && index < 16){
+            return real_register.get_reg("s" + (index-4));
         }
 //        else if(index >= 17 && index < 25){
 //            return real_register.get_reg("a" + (index-17));
@@ -198,7 +224,7 @@ public class linear_scan {
         ArrayList<register> queue = new ArrayList<>();
         PriorityQueue<register> pq = new PriorityQueue<>((a,b)->register_end.get(a)-register_end.get(b));
 
-        for(int i = 0 ; i < 17 ; ++i){
+        for(int i = 0 ; i < 16 ; ++i){
             queue.add(null);
         }
 
@@ -211,7 +237,7 @@ public class linear_scan {
                 int index = queue.indexOf(tmp);
                 queue.set(index,null);
             }
-            if(pq.size() < 17){
+            if(pq.size() < 16){
                 int index = get_spare(queue);
                 if(index != -1) {
                     queue.set(index, reg);
@@ -231,22 +257,92 @@ public class linear_scan {
             sw.address.offset.value += function.stack_size;
             if(inst.neg)
                 sw.address.offset.value = -sw.address.offset.value;
+            if(sw.address.offset.value < -2048 || sw.address.offset.value > 2047){
+                var inst_ = new asm_li_instruction(sw.parent,real_register.get_reg("t2"),new imm(sw.address.offset.value));
+                var inst_add = new asm_arith_instruction(sw.parent,real_register.get_reg("t2"),real_register.get_reg("t2"),real_register.get_reg("sp"),"+");
+                sw.parent.instructions.add(sw.parent.instructions.indexOf(inst),inst_);
+                sw.parent.instructions.add(sw.parent.instructions.indexOf(inst),inst_add);
+                sw.address.base = real_register.get_reg("t2");
+                sw.address.offset = new imm(0);
+            }
         }
         if(inst instanceof asm_lw_instruction lw){
             lw.offset.offset.value += function.stack_size;
             if(inst.neg)
                 lw.offset.offset.value = -lw.offset.offset.value;
+            if(lw.offset.offset.value < -2048 || lw.offset.offset.value > 2047){
+                var inst_ = new asm_li_instruction(lw.parent,real_register.get_reg("t2"),new imm(lw.offset.offset.value));
+                var inst_add = new asm_arith_instruction(lw.parent,real_register.get_reg("t2"),real_register.get_reg("t2"),real_register.get_reg("sp"),"+");
+                lw.parent.instructions.add(lw.parent.instructions.indexOf(inst),inst_);
+                lw.parent.instructions.add(lw.parent.instructions.indexOf(inst),inst_add);
+                lw.offset.base = real_register.get_reg("t2");
+                lw.offset.offset = new imm(0);
+            }
         }
         if(inst instanceof asm_arithimm_instruction arith){
             arith.immediate.value += function.stack_size;
             if(inst.neg)
                 arith.immediate.value = -arith.immediate.value;
+            if(arith.immediate.value < -2048 || arith.immediate.value > 2047){
+                var inst_ = new asm_li_instruction(arith.parent,real_register.get_reg("t2"),new imm(arith.immediate.value));
+                var new_arith = new asm_arith_instruction(arith.parent,arith.rd,real_register.get_reg("t2"),arith.rs1,"+");
+                arith.parent.instructions.add(arith.parent.instructions.indexOf(inst),inst_);
+                arith.parent.instructions.add(arith.parent.instructions.indexOf(inst),new_arith);
+                arith.parent.instructions.remove(inst);
+
+            }
+        }
+
+
+
+    }
+
+    public void change_imm(asm_instruction inst , int size){
+        if(inst instanceof asm_sw_instruction sw){
+            sw.address.offset.value += size;
+            if(inst.neg)
+                sw.address.offset.value = -sw.address.offset.value;
+            if(sw.address.offset.value < -2048 || sw.address.offset.value > 2047){
+                var inst_ = new asm_li_instruction(sw.parent,real_register.get_reg("t2"),new imm(sw.address.offset.value));
+                var inst_add = new asm_arith_instruction(sw.parent,real_register.get_reg("t2"),real_register.get_reg("t2"),real_register.get_reg("sp"),"+");
+                sw.parent.instructions.add(sw.parent.instructions.indexOf(inst),inst_);
+                sw.parent.instructions.add(sw.parent.instructions.indexOf(inst),inst_add);
+                sw.address.base = real_register.get_reg("t2");
+                sw.address.offset = new imm(0);
+            }
+        }
+        if(inst instanceof asm_lw_instruction lw){
+            lw.offset.offset.value +=size;
+            if(inst.neg)
+                lw.offset.offset.value = -lw.offset.offset.value;
+            if(lw.offset.offset.value < -2048 || lw.offset.offset.value > 2047){
+                var inst_ = new asm_li_instruction(lw.parent,real_register.get_reg("t2"),new imm(lw.offset.offset.value));
+                var inst_add = new asm_arith_instruction(lw.parent,real_register.get_reg("t2"),real_register.get_reg("t2"),real_register.get_reg("sp"),"+");
+                lw.parent.instructions.add(lw.parent.instructions.indexOf(inst),inst_);
+                lw.parent.instructions.add(lw.parent.instructions.indexOf(inst),inst_add);
+                lw.offset.base = real_register.get_reg("t2");
+                lw.offset.offset = new imm(0);
+            }
+        }
+        if(inst instanceof asm_arithimm_instruction arith){
+            arith.immediate.value += size;
+            if(inst.neg)
+                arith.immediate.value = -arith.immediate.value;
+            if(arith.immediate.value < -2048 || arith.immediate.value > 2047){
+                var inst_ = new asm_li_instruction(arith.parent,real_register.get_reg("t2"),new imm(arith.immediate.value));
+                var new_arith = new asm_arith_instruction(arith.parent,arith.rd,real_register.get_reg("t2"),arith.rs1,"+");
+                arith.parent.instructions.add(arith.parent.instructions.indexOf(inst),inst_);
+                arith.parent.instructions.add(arith.parent.instructions.indexOf(inst),new_arith);
+                arith.parent.instructions.remove(inst);
+
+            }
         }
 
     }
 
     public void execute_function(asm_function function){
         ArrayList<asm_instruction> final_stack_change = new ArrayList<>();
+        int max_stack = 0;
         for(var block : function.body){
             ArrayList<asm_instruction> copy = new ArrayList<>(block.instructions);
             for(var inst : copy){
@@ -257,6 +353,7 @@ public class linear_scan {
                     final_stack_change.add(inst);
                 }
                 function.stack_size += inst.add_stack;
+                max_stack = max(max_stack,function.stack_size);
                 if(inst.use1() != null){
                     if(inst.use1() instanceof virtual_register virtual) {
                         if (register_spill.contains(virtual)) {
@@ -269,10 +366,10 @@ public class linear_scan {
                             else {
                                 number = function.virtual_stack.get(virtual);
                             }
-                            var tmp = new asm_lw_instruction(block,real_register.get_reg("s10"), new memory_address(real_register.get_reg("sp"), new imm(number)));
+                            var tmp = new asm_lw_instruction(block,real_register.get_reg("t0"), new memory_address(real_register.get_reg("sp"), new imm(number)));
                             block.instructions.add(block.instructions.indexOf(inst), tmp);
-                            inst.setUse1(real_register.get_reg("s10"));
-                            busy_s10 = true;
+                            inst.setUse1(real_register.get_reg("t0"));
+                            busy_t0 = true;
                         }
                         else{
                             inst.setUse1(register_map.get(inst.use1()));
@@ -291,17 +388,17 @@ public class linear_scan {
                             else {
                                 number = function.virtual_stack.get(virtual);
                             }
-                            if(!busy_s10) {
-                                var tmp = new asm_lw_instruction(block,real_register.get_reg("s11"), new memory_address(real_register.get_reg("sp"), new imm(number)));
+                            if(busy_t0) {
+                                var tmp = new asm_lw_instruction(block,real_register.get_reg("t1"), new memory_address(real_register.get_reg("sp"), new imm(number)));
                                 block.instructions.add(block.instructions.indexOf(inst), tmp);
-                                inst.setUse2(real_register.get_reg("s11"));
+                                inst.setUse2(real_register.get_reg("t1"));
                             }
                             else{
-                                var tmp = new asm_lw_instruction(block,real_register.get_reg("s10"), new memory_address(real_register.get_reg("sp"), new imm(number)));
+                                var tmp = new asm_lw_instruction(block,real_register.get_reg("t0"), new memory_address(real_register.get_reg("sp"), new imm(number)));
                                 block.instructions.add(block.instructions.indexOf(inst), tmp);
-                                inst.setUse2(real_register.get_reg("s10"));
+                                inst.setUse2(real_register.get_reg("t1"));
                             }
-                            busy_s10 = false;
+                            busy_t0 = false;
                         }
                         else{
                             inst.setUse2(register_map.get(inst.use2()));
@@ -320,9 +417,9 @@ public class linear_scan {
                             else {
                                 number = function.virtual_stack.get(virtual);
                             }
-                            var tmp = new asm_sw_instruction(block,inst.def(), new memory_address(real_register.get_reg("sp"), new imm(number)));
+                            var tmp = new asm_sw_instruction(block,real_register.get_reg("t0"), new memory_address(real_register.get_reg("sp"), new imm(number)));
                             block.instructions.add(block.instructions.indexOf(inst)+1, tmp);
-                            inst.setDef(real_register.get_reg("s10"));
+                            inst.setDef(real_register.get_reg("t0"));
                         }
                         else{
                             inst.setDef(register_map.get(inst.def()));
@@ -332,7 +429,7 @@ public class linear_scan {
             }
         }
         for(var inst : final_stack_change){
-            change_imm(inst,function);
+            change_imm(inst,max_stack);
         }
     }
 
@@ -343,15 +440,4 @@ public class linear_scan {
         allocate(function);
         execute_function(function);
     }
-
-
-
-
-
-
-
-
-
-
-
 }

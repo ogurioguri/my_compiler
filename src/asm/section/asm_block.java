@@ -8,6 +8,7 @@ import IR.*;
 
 public class asm_block extends asm_section{
     public ArrayList<asm_instruction> instructions = null;
+    public ArrayList<asm_instruction> phi_mov = null;
     public asm_function parent = null;
     public basic_block ir_block = null;
     public HashSet<register> use = null;
@@ -53,6 +54,11 @@ public class asm_block extends asm_section{
         for (asm_block block : other.predecessors) {
             this.predecessors.add(block);
         }
+        this.phi_mov = new ArrayList<asm_instruction>();
+        for (asm_instruction inst : other.phi_mov) {
+            this.phi_mov.add(inst);
+        }
+
         this.tag = other.tag;
     }
 
@@ -66,6 +72,7 @@ public class asm_block extends asm_section{
         out = new HashSet<register>();
         use = new HashSet<register>();
         def = new HashSet<register>();
+        phi_mov = new ArrayList<asm_instruction>();
     }
 
     public String toString(){
